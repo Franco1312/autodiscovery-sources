@@ -1,0 +1,58 @@
+# Source discovery contracts
+# Each item defines how to discover and validate a resource
+
+- key: "bcra_series"
+  start_urls:
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp"
+  match:
+    kind: "fixed_filename"
+    pattern: "series.xlsm"
+  expect:
+    mime: "application/vnd.ms-excel.sheet.macroEnabled.12"
+    min_size_kb: 100
+  mirror: true
+  versioning: "date_today"  # if no date in filename, version by discovery date
+
+- key: "bcra_infomodia"
+  start_urls:
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
+  match:
+    kind: "date_pattern"
+    regex: "infomodia-(\\d{4}-\\d{2}-\\d{2})\\.xls"
+  expect:
+    mime: "application/vnd.ms-excel"
+    min_size_kb: 50
+  mirror: true
+  versioning: "date_from_filename"  # use captured group as version
+
+- key: "bcra_rem_pdf"
+  start_urls:
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
+  match:
+    kind: "month_pattern"
+    regex: "relevamiento-expectativas-mercado-(\\w+)-(\\d{4})\\.pdf"  # e.g: sep-2025/noviembre-2025
+    locale_hint: "es"
+  expect:
+    mime: "application/pdf"
+    min_size_kb: 200
+  mirror: true
+  versioning: "year_month_from_filename"
+
+- key: "indec_emae"
+  start_urls:
+    - "https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos-4"
+  match:
+    kind: "fuzzy_text_and_ext"
+    text_contains_any: ["EMAE", "Estimador mensual de actividad económica"]
+    ext: [".xlsx", ".xls", ".csv", ".pdf"]
+  expect:
+    mime_any:
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      - "application/vnd.ms-excel"
+      - "application/pdf"
+      - "text/csv"
+    min_size_kb: 50
+  mirror: true
+  versioning: "date_today"
+

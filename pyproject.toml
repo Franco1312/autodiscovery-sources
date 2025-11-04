@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autodiscovery"
+version = "0.1.0"
+description = "Data source URL discovery, validation, versioning and registration for Argentina (BCRA, INDEC, REM)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    {name = "Radar Data Platform", email = "platform@example.com"}
+]
+keywords = ["data-discovery", "bcra", "indec", "argentina", "data-sources"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "typer>=0.9.0",
+    "httpx>=0.25.0",
+    "tenacity>=8.2.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0",
+    "boto3>=1.28.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "types-PyYAML>=6.0.0",
+    "types-beautifulsoup4>=4.12.0",
+]
+
+[project.scripts]
+autodiscovery = "autodiscovery.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = [
+    "autodiscovery",
+    "autodiscovery.application",
+    "autodiscovery.application.factories",
+    "autodiscovery.application.services",
+    "autodiscovery.application.usecases",
+    "autodiscovery.domain",
+    "autodiscovery.infrastructure",
+    "autodiscovery.mirror",
+    "autodiscovery.registry",
+    "autodiscovery.rules",
+    "autodiscovery.sources",
+    "autodiscovery.util",
+]
+
+[tool.setuptools.package-data]
+autodiscovery = ["py.typed"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+

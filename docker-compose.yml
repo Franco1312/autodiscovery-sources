@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  autodiscovery:
+    build: .
+    container_name: autodiscovery
+    volumes:
+      - ./registry:/data/registry
+      - ./mirrors:/data/mirrors
+      - ./contracts:/app/contracts
+    environment:
+      - REGISTRY_PATH=/data/registry/sources_registry.json
+      - MIRRORS_PATH=/data/mirrors
+      - CONTRACTS_PATH=/app/contracts/sources.yml
+      - VERIFY_SSL=${VERIFY_SSL:-true}
+      - TIMEOUT_SECS=${TIMEOUT_SECS:-10}
+      - RETRIES=${RETRIES:-3}
+      # S3 (optional)
+      - MIRRORS_S3_BUCKET=${MIRRORS_S3_BUCKET:-}
+      - AWS_REGION=${AWS_REGION:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+    command: autodiscovery sync --all
+    restart: unless-stopped
+
