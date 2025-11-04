@@ -1,14 +1,12 @@
 """Domain entities."""
 
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
-@dataclass
-class DiscoveredFile:
+class DiscoveredFile(BaseModel):
     """Represents a discovered file."""
 
     url: str

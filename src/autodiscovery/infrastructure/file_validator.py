@@ -3,8 +3,7 @@
 import logging
 from typing import List, Optional
 
-from autodiscovery.domain.interfaces import IFileValidator
-from autodiscovery.http import HTTPClient
+from autodiscovery.domain.interfaces import IFileValidator, IHTTPClient
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 class FileValidator(IFileValidator):
     """Implementation of file validator using HTTP HEAD requests."""
 
-    def __init__(self, client: HTTPClient):
+    def __init__(self, client: IHTTPClient):
         self.client = client
 
     def validate_file(

@@ -24,8 +24,9 @@ from autodiscovery.application.usecases.discover_source_use_case import (
 from autodiscovery.application.usecases.validate_source_use_case import (
     ValidateSourceUseCase,
 )
-from autodiscovery.domain.interfaces import IRegistryRepository
+from autodiscovery.domain.interfaces import IContractRepository, IRegistryRepository
 from autodiscovery.http import HTTPClient
+from autodiscovery.infrastructure.contract_repository import ContractRepository
 from autodiscovery.infrastructure.file_validator import FileValidator
 from autodiscovery.infrastructure.html_parser import HTMLParser
 from autodiscovery.infrastructure.mirror_service import MirrorService
@@ -45,7 +46,8 @@ console = Console()
 
 
 # Services (dependency injection)
-contract_service = ContractService()
+contract_repository: IContractRepository = ContractRepository()
+contract_service = ContractService(contract_repository)
 registry_repository: IRegistryRepository = RegistryRepository()
 
 

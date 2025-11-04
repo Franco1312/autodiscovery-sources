@@ -1,6 +1,6 @@
-"""Factory classes."""
+"""Factory classes.
 
-from autodiscovery.application.factories.discoverer_factory import DiscovererFactory
-
-__all__ = ["DiscovererFactory"]
+Note: DiscovererFactory has been moved to infrastructure.discoverer_factory
+to avoid application layer depending on concrete implementations.
+"""
 

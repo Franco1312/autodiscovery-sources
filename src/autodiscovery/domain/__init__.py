@@ -2,6 +2,7 @@
 
 from autodiscovery.domain.entities import DiscoveredFile, SourceEntry
 from autodiscovery.domain.interfaces import (
+    IContractRepository,
     IFileValidator,
     IHTMLParser,
     IHTTPClient,
@@ -21,5 +22,6 @@ __all__ = [
     "IHTTPClient",
     "IHTMLParser",
     "IValidationRules",
+    "IContractRepository",
 ]
 

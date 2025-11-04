@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from autodiscovery.application.factories.discoverer_factory import DiscovererFactory
+from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 from autodiscovery.application.services.contract_service import ContractService
 from autodiscovery.application.services.discovery_service import DiscoveryService
 from autodiscovery.application.services.validation_service import ValidationService

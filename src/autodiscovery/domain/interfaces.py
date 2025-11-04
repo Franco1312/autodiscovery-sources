@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from autodiscovery.domain.entities import DiscoveredFile, SourceEntry
 
@@ -179,5 +179,24 @@ class IValidationRules(ABC):
     @abstractmethod
     def get_discontinuity_notes(self, key: str) -> Optional[str]:
         """Get discontinuity notes for key."""
+        pass
+
+
+class IContractRepository(ABC):
+    """Interface for contract repository."""
+
+    @abstractmethod
+    def load_contracts(self) -> List[Dict[str, Any]]:
+        """Load all contracts."""
+        pass
+
+    @abstractmethod
+    def get_contract(self, key: str) -> Optional[Dict[str, Any]]:
+        """Get contract for a specific key."""
+        pass
+
+    @abstractmethod
+    def get_all_keys(self) -> List[str]:
+        """Get all contract keys."""
         pass
 

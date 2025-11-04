@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
-from autodiscovery.application.factories.discoverer_factory import DiscovererFactory
+from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 from autodiscovery.application.services.contract_service import ContractService
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import IFileValidator, IHTMLParser, IHTTPClient
