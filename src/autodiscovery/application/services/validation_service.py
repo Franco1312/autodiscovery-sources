@@ -1,7 +1,6 @@
 """Service for validating discovered files."""
 
 import logging
-from typing import Optional
 
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import IFileValidator, IValidationRules
@@ -24,7 +23,7 @@ class ValidationService:
         self,
         discovered: DiscoveredFile,
         key: str,
-    ) -> tuple[bool, str, Optional[str]]:
+    ) -> tuple[bool, str, str | None]:
         """
         Validate a discovered file.
 
@@ -66,13 +65,9 @@ class ValidationService:
         size_valid = self.validation_rules.validate_size(key, size_kb or 0)
 
         # Determine status
-        if mime_valid and size_valid:
-            status = "ok"
-        else:
-            status = "suspect"
+        status = "ok" if mime_valid and size_valid else "suspect"
 
         # Get discontinuity notes
         notes = self.validation_rules.get_discontinuity_notes(key)
 
         return True, status, notes
-

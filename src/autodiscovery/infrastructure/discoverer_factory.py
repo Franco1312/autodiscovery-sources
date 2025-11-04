@@ -1,7 +1,6 @@
 """Factory for creating discoverers."""
 
 import logging
-from typing import Dict, List, Optional, Type
 
 from autodiscovery.domain.interfaces import IHTTPClient, ISourceDiscoverer
 from autodiscovery.sources.bcra_infomodia import BCRAInfomodiaDiscoverer
@@ -16,7 +15,7 @@ class DiscovererFactory:
     """Factory for creating source discoverers."""
 
     # Registry of discoverer classes by key
-    _discoverers: Dict[str, Type[ISourceDiscoverer]] = {
+    _discoverers: dict[str, type[ISourceDiscoverer]] = {
         "bcra_series": BCRASeriesDiscoverer,
         "bcra_infomodia": BCRAInfomodiaDiscoverer,
         "bcra_rem_pdf": BCRAREMDiscoverer,
@@ -24,7 +23,7 @@ class DiscovererFactory:
     }
 
     @classmethod
-    def create(cls, key: str, client: IHTTPClient) -> Optional[ISourceDiscoverer]:
+    def create(cls, key: str, client: IHTTPClient) -> ISourceDiscoverer | None:
         """
         Create a discoverer for the given key.
 
@@ -41,13 +40,13 @@ class DiscovererFactory:
             return None
 
         try:
-            return discoverer_class(client)
+            return discoverer_class(client)  # type: ignore[call-arg]
         except Exception as e:
             logger.error(f"Failed to create discoverer for {key}: {e}")
             return None
 
     @classmethod
-    def register(cls, key: str, discoverer_class: Type[ISourceDiscoverer]) -> None:
+    def register(cls, key: str, discoverer_class: type[ISourceDiscoverer]) -> None:
         """
         Register a new discoverer class.
 
@@ -59,7 +58,6 @@ class DiscovererFactory:
         logger.debug(f"Registered discoverer for key: {key}")
 
     @classmethod
-    def get_available_keys(cls) -> List[str]:
+    def get_available_keys(cls) -> list[str]:
         """Get list of available discoverer keys."""
         return list(cls._discoverers.keys())
-

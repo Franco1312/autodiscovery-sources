@@ -1,7 +1,6 @@
 """HTTP client with retry and timeout logic."""
 
 import logging
-from typing import Optional
 
 import httpx
 from tenacity import (
@@ -88,4 +87,3 @@ class HTTPClient(IHTTPClient):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-

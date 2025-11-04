@@ -183,4 +183,3 @@ autodiscovery/
 - El registro y los mirrors se crean automáticamente si no existen
 - S3 es opcional; si no se configuran credenciales, solo se usa FS local
 - Los contratos pueden estar en cualquier ubicación configurable
-

@@ -19,4 +19,3 @@ __all__ = [
     "atomic_write",
     "atomic_write_stream",
 ]
-

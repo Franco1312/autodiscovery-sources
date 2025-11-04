@@ -2,12 +2,8 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock
-
-import pytest
 
 from autodiscovery.domain.entities import SourceEntry
-from autodiscovery.domain.interfaces import IRegistryRepository
 from autodiscovery.infrastructure.registry_repository import RegistryRepository
 from autodiscovery.registry.registry import RegistryManager
 
@@ -117,4 +113,3 @@ def test_registry_repository_list_keys():
         assert len(keys) == 2
         assert "key1" in keys
         assert "key2" in keys
-

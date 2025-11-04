@@ -1,5 +1,6 @@
 """Filesystem utilities with safe operations."""
 
+import contextlib
 import os
 import tempfile
 from pathlib import Path
@@ -22,10 +23,8 @@ def atomic_write(file_path: Path, content: bytes) -> None:
         os.replace(temp_path, file_path)
     except Exception:
         # Clean up temp file on error
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(temp_path)
-        except OSError:
-            pass
         raise
 
 
@@ -42,9 +41,7 @@ def atomic_write_stream(file_path: Path, source: BinaryIO, chunk_size: int = 819
                 f.write(chunk)
         os.replace(temp_path, file_path)
     except Exception:
-        try:
+        # Clean up temp file on error
+        with contextlib.suppress(OSError):
             os.unlink(temp_path)
-        except OSError:
-            pass
         raise
-

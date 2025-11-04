@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError
@@ -43,7 +42,7 @@ class S3Mirror:
         key: str,
         version: str,
         filename: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Upload file to S3.
 
@@ -64,4 +63,3 @@ class S3Mirror:
         except Exception as e:
             logger.error(f"Unexpected error uploading to S3: {e}")
             return None
-

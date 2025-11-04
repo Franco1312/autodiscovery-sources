@@ -1,7 +1,6 @@
 """Domain entities."""
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,9 +11,9 @@ class DiscoveredFile(BaseModel):
     url: str
     version: str
     filename: str
-    mime: Optional[str] = None
-    size_kb: Optional[float] = None
-    sha256: Optional[str] = None
+    mime: str | None = None
+    size_kb: float | None = None
+    sha256: str | None = None
 
 
 class SourceEntry(BaseModel):
@@ -27,7 +26,6 @@ class SourceEntry(BaseModel):
     sha256: str
     last_checked: str = Field(default_factory=lambda: datetime.now().isoformat() + "Z")
     status: str = Field(default="ok")  # ok, suspect, broken
-    notes: Optional[str] = None
-    stored_path: Optional[str] = None  # Local filesystem path
-    s3_key: Optional[str] = None  # S3 key if mirrored to S3
-
+    notes: str | None = None
+    stored_path: str | None = None  # Local filesystem path
+    s3_key: str | None = None  # S3 key if mirrored to S3

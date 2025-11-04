@@ -39,6 +39,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.1.0",
     "mypy>=1.5.0",
+    "pre-commit>=3.0.0",
     "types-PyYAML>=6.0.0",
     "types-beautifulsoup4>=4.12.0",
 ]
@@ -75,4 +76,49 @@ disallow_untyped_defs = false
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    ".pytest_cache",
+    "build",
+    "dist",
+]
 
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PIE", # flake8-pie
+    "PT",  # flake8-pytest-style
+]
+ignore = [
+    "E501",  # line too long (handled by line-length)
+    "B008",  # do not perform function calls in argument defaults
+    "ARG001", # unused function argument
+    "ARG002", # unused method argument
+    "ARG003", # unused class method argument
+    "ARG004", # unused static method argument
+    "ARG005", # unused method argument (self)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["autodiscovery"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

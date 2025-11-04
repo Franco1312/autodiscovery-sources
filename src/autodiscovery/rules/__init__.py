@@ -17,4 +17,3 @@ __all__ = [
     "get_min_size_kb",
     "get_discontinuity_notes",
 ]
-

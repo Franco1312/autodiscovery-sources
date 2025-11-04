@@ -8,7 +8,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -122,12 +121,14 @@ def list_keys(
         for key in keys:
             entry = registry_repository.get_entry(key)
             if entry:
-                result.append({
-                    "key": key,
-                    "version": entry.version,
-                    "last_checked": entry.last_checked,
-                    "status": entry.status,
-                })
+                result.append(
+                    {
+                        "key": key,
+                        "version": entry.version,
+                        "last_checked": entry.last_checked,
+                        "status": entry.status,
+                    }
+                )
         console.print(json.dumps(result, indent=2))
     else:
         table = RichTable(title="Registered Sources")
@@ -230,7 +231,7 @@ def validate(
 @app.command()
 def sync(
     all: bool = typer.Option(False, "--all", "-a", help="Sync all sources"),
-    key: Optional[str] = typer.Option(None, "--key", "-k", help="Sync specific key"),
+    key: str | None = typer.Option(None, "--key", "-k", help="Sync specific key"),
     mirror: bool = typer.Option(True, help="Download mirror copy"),
     output_json: bool = typer.Option(False, "--json", help="Output JSON"),
 ):
@@ -253,7 +254,7 @@ def sync(
             sys.exit(1)
         contracts = [contract]
 
-    results = []
+    results: list[dict[str, str | None]] = []  # type: ignore[assignment]
     with HTTPClient() as client:
         # Initialize services
         file_validator = FileValidator(client)
@@ -281,18 +282,22 @@ def sync(
                 result = use_case.execute(key, mirror=mirror)
 
                 if result.success:
-                    results.append({
-                        "key": result.key,
-                        "status": "ok",
-                        "url": result.discovered.url,
-                        "version": result.discovered.version,
-                    })
+                    results.append(
+                        {
+                            "key": result.key,
+                            "status": "ok",
+                            "url": result.discovered.url,
+                            "version": result.discovered.version,
+                        }
+                    )
                 else:
-                    results.append({
-                        "key": key,
-                        "status": "error",
-                        "error": result.error,
-                    })
+                    results.append(
+                        {
+                            "key": key,
+                            "status": "error",
+                            "error": result.error,
+                        }
+                    )
 
             except Exception as e:
                 logger.error(f"Failed to sync {key}: {e}")
@@ -301,21 +306,30 @@ def sync(
     if output_json:
         console.print(json.dumps(results, indent=2))
     else:
-        console.print(f"[green]Synced {len([r for r in results if r.get('status') == 'ok'])} sources[/green]")
-        for result in results:
-            status_icon = "✓" if result.get("status") == "ok" else "✗"
-            console.print(f"  {status_icon} {result.get('key')}: {result.get('status')}")
+        console.print(
+            f"[green]Synced {len([r for r in results if r.get('status') == 'ok'])} sources[/green]"
+        )
+        for result_dict in results:
+            status_icon = "✓" if result_dict.get("status") == "ok" else "✗"
+            console.print(f"  {status_icon} {result_dict.get('key')}: {result_dict.get('status')}")
 
 
 @app.command()
 def discover_files(
-    output_file: str = typer.Option("discovered_files.json", "--output", "-o", help="Output file path"),
+    output_file: str = typer.Option(
+        "discovered_files.json", "--output", "-o", help="Output file path"
+    ),
     output_json: bool = typer.Option(False, "--json", help="Output JSON to stdout"),
-    filter_ext: Optional[str] = typer.Option(None, "--filter-ext", "-e", help="Filter by file extensions (comma-separated, e.g., .xls,.pdf,.xlsx)"),
+    filter_ext: str | None = typer.Option(
+        None,
+        "--filter-ext",
+        "-e",
+        help="Filter by file extensions (comma-separated, e.g., .xls,.pdf,.xlsx)",
+    ),
 ):
     """
     Discover all valid files from all sources and save normalized URLs.
-    
+
     This command finds all valid files, normalizes their URLs (encoding spaces and special characters),
     validates them, and saves the results. URLs are automatically normalized during discovery.
     """
@@ -373,7 +387,7 @@ def discover_files(
     # Save to file
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_files_data, f, indent=2, ensure_ascii=False)
 
@@ -398,16 +412,16 @@ def discover_files(
     if output_json:
         console.print(json.dumps(output, indent=2))
     else:
-        console.print(f"[green]Discovery complete![/green]")
+        console.print("[green]Discovery complete![/green]")
         console.print(f"  Output file: {output_path}")
         console.print(f"  Sources processed: {len(all_files_data)}")
         console.print(f"  Total valid files found: {total_files}")
         console.print(f"  Selected files: {selected_count}")
-        console.print(f"  URLs normalized: ✓")
+        console.print("  URLs normalized: ✓")
         if extensions:
             console.print(f"  Filtered by extensions: {', '.join(extensions)}")
         console.print(f"\nFiles saved to: {output_path}")
-    
+
     # Exit successfully
     sys.exit(0)
 
@@ -419,4 +433,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

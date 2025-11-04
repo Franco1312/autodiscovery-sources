@@ -25,10 +25,10 @@ El contrato define dónde buscar:
 for url in start_urls:
     # Paso 2: Descargar y parsear HTML
     soup = fetch_html(url, self.client)
-    
+
     # Paso 3: Extraer todos los links de la página
     links = find_links(soup, url)
-    
+
     # Paso 4: Buscar series.xlsm
     for link_url, link_text in links:
         filename = Path(link_url).name
@@ -78,15 +78,15 @@ def find_links(
     for anchor in soup.find_all("a", href=True):  # Busca todos los <a> con href
         href = anchor.get("href", "")  # Obtiene el href
         text = anchor.get_text(strip=True)  # Obtiene el texto del link
-        
+
         # Convierte URL relativa a absoluta
         absolute_url = urljoin(base_url, href)
-        
+
         # Filtros opcionales (no se usan en bcra_series)
         # ...
-        
+
         links.append((absolute_url, text))
-    
+
     return links
 ```
 
@@ -131,11 +131,11 @@ links = find_links(soup, url)
 for link_url, link_text in links:
     parsed = urlparse(link_url)  # Parse la URL
     filename = Path(parsed.path).name  # Extrae solo el nombre del archivo
-    
+
     # Ejemplo: "https://www.bcra.gob.ar/Pdfs/PublicacionesEstadisticas/series.xlsm"
     # parsed.path = "/Pdfs/PublicacionesEstadisticas/series.xlsm"
     # filename = "series.xlsm"
-    
+
     if filename.lower() == target_filename.lower():  # "series.xlsm" == "series.xlsm"
         # Prefiere links con esta ruta específica
         if "Pdfs/PublicacionesEstadisticas" in link_url:
@@ -147,7 +147,7 @@ for link_url, link_text in links:
 for link_url, link_text in links:
     parsed = urlparse(link_url)
     filename = Path(parsed.path).name
-    
+
     if filename.lower() == target_filename.lower():
         discovered = self._validate_and_create(link_url)
         if discovered:
@@ -162,17 +162,17 @@ Una vez encontrado el link, se valida haciendo un `HEAD` request:
 def _validate_and_create(self, url: str) -> Optional[DiscoveredFile]:
     """Valida el link haciendo HEAD request."""
     response = self.client.head(url)  # HEAD request (solo headers, no descarga)
-    
+
     # Extrae metadatos
     mime = response.headers.get("content-type", "").split(";")[0].strip()
     # Ejemplo: "application/vnd.ms-excel.sheet.macroEnabled.12"
-    
+
     size_bytes = int(response.headers.get("content-length", 0))
     size_kb = size_bytes / 1024.0
     # Ejemplo: 7327.72 KB
-    
+
     version = version_from_date_today()  # "v2025-11-04"
-    
+
     return DiscoveredFile(
         url=url,
         version=version,
@@ -223,7 +223,7 @@ find_links(soup, base_url)
 for link_url, link_text in links:
     filename = Path(link_url).name
     # filename = "series.xlsm"  ← ¡Coincide!
-    
+
     if filename.lower() == "series.xlsm":
         if "Pdfs/PublicacionesEstadisticas" in link_url:
             # ¡Encontrado el preferido!
@@ -304,4 +304,3 @@ El proceso de búsqueda de `series.xlsm`:
 8. **Retorna DiscoveredFile** con metadatos
 
 Este enfoque es robusto porque no depende de la estructura exacta del HTML, solo busca cualquier link que apunte a un archivo con el nombre correcto.
-

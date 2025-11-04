@@ -2,10 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional
 
-from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 from autodiscovery.application.services.contract_service import ContractService
 from autodiscovery.application.services.discovery_service import DiscoveryService
 from autodiscovery.application.services.validation_service import ValidationService
@@ -17,6 +14,7 @@ from autodiscovery.domain.interfaces import (
     IRegistryRepository,
     IValidationRules,
 )
+from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +27,7 @@ class DiscoverSourceResult:
     discovered: DiscoveredFile
     entry: SourceEntry
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class DiscoverSourceUseCase:
@@ -104,9 +102,7 @@ class DiscoverSourceUseCase:
 
         # Validate file
         validation_service = ValidationService(self.file_validator, self.validation_rules)
-        is_valid, status, notes = validation_service.validate_discovered_file(
-            discovered, key
-        )
+        is_valid, status, notes = validation_service.validate_discovered_file(discovered, key)
 
         if not is_valid:
             return DiscoverSourceResult(
@@ -157,4 +153,3 @@ class DiscoverSourceUseCase:
             entry=entry,
             success=True,
         )
-

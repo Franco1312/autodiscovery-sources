@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 
@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 class ContractRepository(IContractRepository):
     """Implementation of contract repository."""
 
-    def __init__(self, contracts_path: Optional[Path] = None):
+    def __init__(self, contracts_path: Path | None = None):
         self.contracts_path = contracts_path or Config.CONTRACTS_PATH
-        self._contracts: Optional[List[Dict]] = None
+        self._contracts: list[dict] | None = None
 
-    def load_contracts(self) -> List[Dict[str, Any]]:
+    def load_contracts(self) -> list[dict[str, Any]]:
         """Load contracts from YAML file."""
         if self._contracts is not None:
             return self._contracts
@@ -30,7 +30,7 @@ class ContractRepository(IContractRepository):
             return self._contracts
 
         try:
-            with open(self.contracts_path, "r", encoding="utf-8") as f:
+            with open(self.contracts_path, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
             self._contracts = data or []
             logger.debug(f"Loaded {len(self._contracts)} contracts")
@@ -40,7 +40,7 @@ class ContractRepository(IContractRepository):
             self._contracts = []
             return self._contracts
 
-    def get_contract(self, key: str) -> Optional[Dict[str, Any]]:
+    def get_contract(self, key: str) -> dict[str, Any] | None:
         """Get contract for a specific key."""
         contracts = self.load_contracts()
         for contract in contracts:
@@ -48,8 +48,7 @@ class ContractRepository(IContractRepository):
                 return contract
         return None
 
-    def get_all_keys(self) -> List[str]:
+    def get_all_keys(self) -> list[str]:
         """Get all contract keys."""
         contracts = self.load_contracts()
         return [c.get("key") for c in contracts if c.get("key")]
-

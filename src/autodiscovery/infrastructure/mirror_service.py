@@ -2,15 +2,11 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
 
-from autodiscovery.config import Config
 from autodiscovery.domain.interfaces import IMirrorService
-from autodiscovery.hashutil import sha256_stream
 from autodiscovery.http import HTTPClient
 from autodiscovery.mirror.fs import FileSystemMirror
 from autodiscovery.mirror.s3 import S3Mirror
-from autodiscovery.util.fsx import atomic_write_stream
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +31,7 @@ class MirrorService(IMirrorService):
 
         Returns (stored_path, sha256).
         """
-        stored_path, sha256 = self.fs_mirror.mirror_file(
-            url, key, version, filename, self.client
-        )
+        stored_path, sha256 = self.fs_mirror.mirror_file(url, key, version, filename, self.client)
 
         # Try S3 mirror if enabled
         if self.s3_mirror.enabled:
@@ -45,4 +39,3 @@ class MirrorService(IMirrorService):
             logger.debug(f"S3 mirror result: {s3_key}")
 
         return stored_path, sha256
-

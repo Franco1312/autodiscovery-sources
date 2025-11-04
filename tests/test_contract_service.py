@@ -2,8 +2,6 @@
 
 from unittest.mock import Mock
 
-import pytest
-
 from autodiscovery.application.services.contract_service import ContractService
 from autodiscovery.domain.interfaces import IContractRepository
 
@@ -51,4 +49,3 @@ def test_contract_service_get_all_keys():
     assert "test_key" in keys
     assert "test_key2" in keys
     mock_repository.get_all_keys.assert_called_once()
-

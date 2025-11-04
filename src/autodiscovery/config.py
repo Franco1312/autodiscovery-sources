@@ -2,7 +2,6 @@
 
 import os
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -14,29 +13,23 @@ class Config:
     """Application configuration from environment variables."""
 
     # Registry
-    REGISTRY_PATH: Path = Path(
-        os.getenv("REGISTRY_PATH", "registry/sources_registry.json")
-    )
+    REGISTRY_PATH: Path = Path(os.getenv("REGISTRY_PATH", "registry/sources_registry.json"))
     MIRRORS_PATH: Path = Path(os.getenv("MIRRORS_PATH", "mirrors"))
 
     # HTTP
     TIMEOUT_SECS: int = int(os.getenv("TIMEOUT_SECS", "10"))
     RETRIES: int = int(os.getenv("RETRIES", "3"))
-    USER_AGENT: str = os.getenv(
-        "USER_AGENT", "RadarAutodiscovery/1.0"
-    )
+    USER_AGENT: str = os.getenv("USER_AGENT", "RadarAutodiscovery/1.0")
     VERIFY_SSL: bool = os.getenv("VERIFY_SSL", "true").lower() == "true"
 
     # S3 (optional)
-    MIRRORS_S3_BUCKET: Optional[str] = os.getenv("MIRRORS_S3_BUCKET")
-    AWS_REGION: Optional[str] = os.getenv("AWS_REGION")
-    AWS_ACCESS_KEY_ID: Optional[str] = os.getenv("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY: Optional[str] = os.getenv("AWS_SECRET_ACCESS_KEY")
+    MIRRORS_S3_BUCKET: str | None = os.getenv("MIRRORS_S3_BUCKET")
+    AWS_REGION: str | None = os.getenv("AWS_REGION")
+    AWS_ACCESS_KEY_ID: str | None = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY: str | None = os.getenv("AWS_SECRET_ACCESS_KEY")
 
     # Contracts
-    CONTRACTS_PATH: Path = Path(
-        os.getenv("CONTRACTS_PATH", "contracts/sources.yml")
-    )
+    CONTRACTS_PATH: Path = Path(os.getenv("CONTRACTS_PATH", "contracts/sources.yml"))
 
     @classmethod
     def is_s3_enabled(cls) -> bool:
@@ -49,4 +42,3 @@ class Config:
                 cls.AWS_SECRET_ACCESS_KEY,
             ]
         )
-

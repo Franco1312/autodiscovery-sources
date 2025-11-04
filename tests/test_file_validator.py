@@ -2,7 +2,6 @@
 
 from unittest.mock import Mock
 
-import pytest
 from httpx import Response
 
 from autodiscovery.domain.interfaces import IHTTPClient
@@ -119,4 +118,3 @@ def test_file_validator_with_min_size():
     assert is_valid is False  # File is 50KB but minimum is 100KB
     assert mime is None
     assert size_kb is None
-

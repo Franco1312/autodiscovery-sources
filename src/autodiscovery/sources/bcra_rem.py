@@ -3,12 +3,10 @@
 import logging
 import re
 from pathlib import Path
-from typing import List, Optional
 from urllib.parse import urlparse
 
-from autodiscovery.html import fetch_html, find_links
-from autodiscovery.http import HTTPClient
 from autodiscovery.domain.entities import DiscoveredFile
+from autodiscovery.html import fetch_html, find_links
 from autodiscovery.sources.base import BaseDiscoverer
 from autodiscovery.util.date import normalize_spanish_month, version_from_year_month
 
@@ -18,7 +16,7 @@ logger = logging.getLogger(__name__)
 class BCRAREMDiscoverer(BaseDiscoverer):
     """Discoverer for BCRA REM PDF files."""
 
-    def discover(self, start_urls: List[str]) -> Optional[DiscoveredFile]:
+    def discover(self, start_urls: list[str]) -> DiscoveredFile | None:
         """Discover latest REM PDF file."""
         # Pattern: relevamiento-expectativas-mercado-<month>-<year>.pdf
         # Month can be in Spanish (full or abbreviated)
@@ -31,7 +29,7 @@ class BCRAREMDiscoverer(BaseDiscoverer):
                 links = find_links(soup, url, ext=[".pdf"])
 
                 # Find all REM PDFs
-                for link_url, link_text in links:
+                for link_url, _link_text in links:
                     parsed = urlparse(link_url)
                     filename = Path(parsed.path).name
 
@@ -63,9 +61,7 @@ class BCRAREMDiscoverer(BaseDiscoverer):
         discovered = self._validate_and_create(latest_url, version, filename)
         return discovered
 
-    def _validate_and_create(
-        self, url: str, version: str, filename: str
-    ) -> Optional[DiscoveredFile]:
+    def _validate_and_create(self, url: str, version: str, filename: str) -> DiscoveredFile | None:
         """Validate URL and create DiscoveredFile."""
         try:
             response = self.client.head(url)
@@ -83,4 +79,3 @@ class BCRAREMDiscoverer(BaseDiscoverer):
         except Exception as e:
             logger.warning(f"Failed to validate {url}: {e}")
             return None
-

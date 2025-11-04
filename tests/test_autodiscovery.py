@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 import pytest
 from httpx import Response
 
-from autodiscovery.config import Config
 from autodiscovery.registry.models import Registry, SourceEntry
 from autodiscovery.registry.registry import RegistryManager
 from autodiscovery.util.date import (
@@ -76,7 +75,7 @@ def test_registry_atomic_write():
         assert loaded_entry.sha256 == entry.sha256
 
         # Verify JSON structure
-        with open(registry_path, "r") as f:
+        with open(registry_path) as f:
             data = json.load(f)
             assert "entries" in data
             assert "test_key" in data["entries"]
@@ -134,7 +133,7 @@ def test_registry_has_entry():
 def test_bcra_series_discoverer(mock_head, mock_get, mock_fetch_html):
     """Test BCRA series discoverer."""
     from bs4 import BeautifulSoup
-    from httpx import Response
+
     from autodiscovery.http import HTTPClient
     from autodiscovery.sources.bcra_series import BCRASeriesDiscoverer
 
@@ -180,7 +179,7 @@ def test_bcra_series_discoverer(mock_head, mock_get, mock_fetch_html):
 def test_bcra_infomodia_discoverer(mock_head, mock_get, mock_fetch_html):
     """Test BCRA infomodia discoverer."""
     from bs4 import BeautifulSoup
-    from httpx import Response
+
     from autodiscovery.http import HTTPClient
     from autodiscovery.sources.bcra_infomodia import BCRAInfomodiaDiscoverer
 
@@ -242,4 +241,3 @@ def test_registry_model():
     registry = Registry(entries={"test_key": entry})
     assert registry.has("test_key")
     assert registry.get("test_key") == entry
-

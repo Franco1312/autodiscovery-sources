@@ -2,7 +2,6 @@
 
 import re
 from datetime import datetime
-from typing import Optional
 
 # Spanish month names mapping
 SPANISH_MONTHS = {
@@ -34,7 +33,7 @@ SPANISH_MONTHS = {
 }
 
 
-def normalize_spanish_month(month_str: str) -> Optional[str]:
+def normalize_spanish_month(month_str: str) -> str | None:
     """Normalize Spanish month name/abbreviation to MM."""
     month_lower = month_str.lower().strip()
     return SPANISH_MONTHS.get(month_lower)
@@ -62,7 +61,7 @@ def version_from_year_month(year: str, month: str) -> str:
     return f"{year}-{month}"
 
 
-def extract_date_from_filename(filename: str, pattern: str) -> Optional[str]:
+def extract_date_from_filename(filename: str, pattern: str) -> str | None:
     """Extract date from filename using regex pattern."""
     match = re.search(pattern, filename)
     if match:
@@ -75,4 +74,3 @@ def extract_date_from_filename(filename: str, pattern: str) -> Optional[str]:
             year, month = groups[0], groups[1]
             return f"{year}-{month}"
     return None
-

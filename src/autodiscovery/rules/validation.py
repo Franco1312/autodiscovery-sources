@@ -1,9 +1,7 @@
 """Validation rules per source key."""
 
-from typing import Dict, List, Optional
-
 # Expected MIME types and size constraints per source key
-VALIDATION_RULES: Dict[str, Dict] = {
+VALIDATION_RULES: dict[str, dict] = {
     "bcra_series": {
         "expected_mime": "application/vnd.ms-excel.sheet.macroEnabled.12",
         "min_size_kb": 100,
@@ -28,22 +26,25 @@ VALIDATION_RULES: Dict[str, Dict] = {
 }
 
 
-def get_expected_mime(key: str) -> Optional[str]:
+def get_expected_mime(key: str) -> str | None:
     """Get expected MIME type for source key."""
     rule = VALIDATION_RULES.get(key, {})
-    return rule.get("expected_mime")
+    result = rule.get("expected_mime")
+    return result if isinstance(result, str) else None
 
 
-def get_expected_mime_any(key: str) -> Optional[List[str]]:
+def get_expected_mime_any(key: str) -> list[str] | None:
     """Get list of acceptable MIME types for source key."""
     rule = VALIDATION_RULES.get(key, {})
-    return rule.get("expected_mime_any")
+    result = rule.get("expected_mime_any")
+    return result if isinstance(result, list) else None
 
 
-def get_min_size_kb(key: str) -> Optional[int]:
+def get_min_size_kb(key: str) -> int | None:
     """Get minimum size in KB for source key."""
     rule = VALIDATION_RULES.get(key, {})
-    return rule.get("min_size_kb")
+    result = rule.get("min_size_kb")
+    return result if isinstance(result, int) else None
 
 
 def validate_mime(key: str, mime: str) -> bool:
@@ -66,4 +67,3 @@ def validate_size(key: str, size_kb: float) -> bool:
     if min_size is None:
         return True
     return size_kb >= min_size
-

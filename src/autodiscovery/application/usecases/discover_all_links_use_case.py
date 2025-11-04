@@ -3,13 +3,11 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
-from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 from autodiscovery.application.services.contract_service import ContractService
-from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import IFileValidator, IHTMLParser, IHTTPClient
+from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +20,11 @@ class DiscoveredLink:
     text: str
     source_page: str
     status: str = "ok"
-    mime: Optional[str] = None
-    size_kb: Optional[float] = None
-    size_bytes: Optional[int] = None
-    content_disposition: Optional[str] = None
-    error: Optional[str] = None
+    mime: str | None = None
+    size_kb: float | None = None
+    size_bytes: int | None = None
+    content_disposition: str | None = None
+    error: str | None = None
 
 
 @dataclass
@@ -34,18 +32,18 @@ class SourceLinksResult:
     """Result for a single source."""
 
     key: str
-    start_urls: List[str]
-    links_found: List[DiscoveredLink]
-    selected_link: Optional[Dict] = None
-    filter_extensions: Optional[List[str]] = None
-    error: Optional[str] = None
+    start_urls: list[str]
+    links_found: list[DiscoveredLink]
+    selected_link: dict | None = None
+    filter_extensions: list[str] | None = None
+    error: str | None = None
 
 
 @dataclass
 class DiscoverAllLinksResult:
     """Result of discover all links use case."""
 
-    sources: Dict[str, SourceLinksResult]
+    sources: dict[str, SourceLinksResult]
     total_links: int
     valid_links: int
     selected_links: int
@@ -57,7 +55,7 @@ class DiscoverAllLinksUseCase:
     def __init__(
         self,
         contract_service: ContractService,
-        file_validator: Optional[IFileValidator],
+        file_validator: IFileValidator | None,
         http_client: IHTTPClient,
         html_parser: IHTMLParser,
     ):
@@ -68,7 +66,7 @@ class DiscoverAllLinksUseCase:
 
     def execute(
         self,
-        filter_extensions: Optional[List[str]] = None,
+        filter_extensions: list[str] | None = None,
         validate: bool = True,
     ) -> DiscoverAllLinksResult:
         """
@@ -140,12 +138,18 @@ class DiscoverAllLinksUseCase:
                                         link_data.status = "ok"
                                         link_data.mime = mime
                                         link_data.size_kb = size_kb
-                                        link_data.size_bytes = int(size_kb * 1024) if size_kb else None
+                                        link_data.size_bytes = (
+                                            int(size_kb * 1024) if size_kb else None
+                                        )
                                         source_result.links_found.append(link_data)
-                                        logger.debug(f"✓ Valid file: {link_url} (MIME: {mime}, size: {size_kb:.2f} KB)")
+                                        logger.debug(
+                                            f"✓ Valid file: {link_url} (MIME: {mime}, size: {size_kb:.2f} KB)"
+                                        )
                                     else:
                                         # Log why it was rejected for debugging
-                                        logger.debug(f"✗ Link rejected: {link_url} (MIME: {mime or 'unknown'}, size: {size_kb or 0:.2f} KB)")
+                                        logger.debug(
+                                            f"✗ Link rejected: {link_url} (MIME: {mime or 'unknown'}, size: {size_kb or 0:.2f} KB)"
+                                        )
                                         continue
                                 except Exception as e:
                                     logger.debug(f"✗ Link validation error: {link_url} - {e}")
@@ -190,7 +194,7 @@ class DiscoverAllLinksUseCase:
         # Calculate totals
         total_links = sum(len(data.links_found) for data in sources_data.values())
         valid_links = sum(
-            len([l for l in data.links_found if l.status == "ok"])
+            len([link for link in data.links_found if link.status == "ok"])
             for data in sources_data.values()
         )
         selected_count = sum(
@@ -205,4 +209,3 @@ class DiscoverAllLinksUseCase:
             valid_links=valid_links,
             selected_links=selected_count,
         )
-

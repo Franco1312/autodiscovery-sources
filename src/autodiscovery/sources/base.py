@@ -1,7 +1,5 @@
 """Base discoverer implementation."""
 
-from typing import List, Optional
-
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import ISourceDiscoverer
 from autodiscovery.http import HTTPClient
@@ -13,11 +11,10 @@ class BaseDiscoverer(ISourceDiscoverer):
     def __init__(self, client: HTTPClient):
         self.client = client
 
-    def discover(self, start_urls: List[str]) -> Optional[DiscoveredFile]:
+    def discover(self, start_urls: list[str]) -> DiscoveredFile | None:
         """
         Discover file from start URLs.
 
         Returns DiscoveredFile if found, None otherwise.
         """
         raise NotImplementedError
-

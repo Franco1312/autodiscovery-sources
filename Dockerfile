@@ -36,4 +36,3 @@ VOLUME ["/data"]
 
 # Default command
 CMD ["autodiscovery", "--help"]
-

@@ -55,4 +55,3 @@
     min_size_kb: 50
   mirror: true
   versioning: "date_today"
-

@@ -2,8 +2,6 @@
 
 from unittest.mock import Mock
 
-import pytest
-
 from autodiscovery.application.services.validation_service import ValidationService
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import IFileValidator, IValidationRules
@@ -87,4 +85,3 @@ def test_validation_service_validate_broken():
     assert is_valid is False
     assert status == "broken"
     assert notes is None
-

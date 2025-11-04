@@ -2,12 +2,10 @@
 
 import logging
 from pathlib import Path
-from typing import List, Optional
 from urllib.parse import urlparse
 
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.html import fetch_html, find_links
-from autodiscovery.http import HTTPClient
 from autodiscovery.sources.base import BaseDiscoverer
 from autodiscovery.util.date import version_from_date_today
 
@@ -17,7 +15,7 @@ logger = logging.getLogger(__name__)
 class BCRASeriesDiscoverer(BaseDiscoverer):
     """Discoverer for BCRA series.xlsm file."""
 
-    def discover(self, start_urls: List[str]) -> Optional[DiscoveredFile]:
+    def discover(self, start_urls: list[str]) -> DiscoveredFile | None:
         """Discover series.xlsm file from BCRA PublicacionesEstadisticas pages."""
         target_filename = "series.xlsm"
 
@@ -27,19 +25,21 @@ class BCRASeriesDiscoverer(BaseDiscoverer):
                 links = find_links(soup, url)
 
                 # Find exact match for series.xlsm
-                for link_url, link_text in links:
+                for link_url, _link_text in links:
                     parsed = urlparse(link_url)
                     filename = Path(parsed.path).name
 
-                    if filename.lower() == target_filename.lower():
-                        # Prefer links from Pdfs/PublicacionesEstadisticas/series.xlsm
-                        if "Pdfs/PublicacionesEstadisticas" in link_url:
-                            discovered = self._validate_and_create(link_url)
-                            if discovered:
-                                return discovered
+                    # Prefer links from Pdfs/PublicacionesEstadisticas/series.xlsm
+                    if (
+                        filename.lower() == target_filename.lower()
+                        and "Pdfs/PublicacionesEstadisticas" in link_url
+                    ):
+                        discovered = self._validate_and_create(link_url)
+                        if discovered:
+                            return discovered
 
                 # If no preferred path found, try any series.xlsm
-                for link_url, link_text in links:
+                for link_url, _link_text in links:
                     parsed = urlparse(link_url)
                     filename = Path(parsed.path).name
 
@@ -54,7 +54,7 @@ class BCRASeriesDiscoverer(BaseDiscoverer):
 
         return None
 
-    def _validate_and_create(self, url: str) -> Optional[DiscoveredFile]:
+    def _validate_and_create(self, url: str) -> DiscoveredFile | None:
         """Validate URL and create DiscoveredFile."""
         try:
             response = self.client.head(url)
@@ -75,4 +75,3 @@ class BCRASeriesDiscoverer(BaseDiscoverer):
         except Exception as e:
             logger.warning(f"Failed to validate {url}: {e}")
             return None
-

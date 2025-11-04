@@ -169,4 +169,3 @@ services:
 - **Python**: 3.11+
 - **Sistemas Operativos**: Linux, macOS, Windows
 - **Deployment**: Docker, Kubernetes, bare metal
-

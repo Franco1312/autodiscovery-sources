@@ -3,10 +3,8 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from autodiscovery.application.services.contract_service import ContractService
-from autodiscovery.application.services.validation_service import ValidationService
 from autodiscovery.domain.entities import SourceEntry
 from autodiscovery.domain.interfaces import (
     IFileValidator,
@@ -30,7 +28,7 @@ class ValidateSourceResult:
     size_valid: bool
     status: str
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class ValidateSourceUseCase:
@@ -192,4 +190,3 @@ class ValidateSourceUseCase:
                 success=False,
                 error=str(e),
             )
-

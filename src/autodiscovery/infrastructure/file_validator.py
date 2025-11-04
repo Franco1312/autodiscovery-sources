@@ -1,7 +1,6 @@
 """File validator implementation."""
 
 import logging
-from typing import List, Optional
 
 from autodiscovery.domain.interfaces import IFileValidator, IHTTPClient
 
@@ -18,10 +17,10 @@ class FileValidator(IFileValidator):
         self,
         url: str,
         key: str,
-        expected_mime: Optional[str] = None,
-        expected_mime_any: Optional[List[str]] = None,
-        min_size_kb: Optional[float] = None,
-    ) -> tuple[bool, Optional[str], Optional[float]]:
+        expected_mime: str | None = None,
+        expected_mime_any: list[str] | None = None,
+        min_size_kb: float | None = None,
+    ) -> tuple[bool, str | None, float | None]:
         """
         Validate file accessibility and metadata.
 
@@ -57,16 +56,17 @@ class FileValidator(IFileValidator):
             # Verificar si es un archivo válido
             # Aceptar más tipos de application/* (no solo los listados)
             is_valid_file = (
-                mime.lower() in [m.lower() for m in valid_file_mimes] or
-                (mime.startswith("application/") and not mime.startswith("application/xhtml")) or
-                mime.startswith("text/csv") or
-                mime.startswith("application/vnd.") or
-                mime.startswith("application/octet-stream")
+                mime.lower() in [m.lower() for m in valid_file_mimes]
+                or (mime.startswith("application/") and not mime.startswith("application/xhtml"))
+                or mime.startswith(("text/csv", "application/vnd.", "application/octet-stream"))
             )
 
             # Verificar Content-Disposition si está presente
             content_disposition = response.headers.get("content-disposition", "")
-            has_attachment = "attachment" in content_disposition.lower() or "filename" in content_disposition.lower()
+            has_attachment = (
+                "attachment" in content_disposition.lower()
+                or "filename" in content_disposition.lower()
+            )
 
             # Determinar si es un archivo válido
             if not is_valid_file and not has_attachment:
@@ -84,4 +84,3 @@ class FileValidator(IFileValidator):
         except Exception as e:
             logger.debug(f"File validation failed: {url} - {e}")
             return False, None, None
-

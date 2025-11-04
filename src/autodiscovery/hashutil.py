@@ -28,4 +28,3 @@ def sha256_stream(stream: BinaryIO, chunk_size: int = 4096) -> str:
             break
         sha256.update(chunk)
     return sha256.hexdigest()
-

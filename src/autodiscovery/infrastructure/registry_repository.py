@@ -1,7 +1,6 @@
 """Registry repository implementation."""
 
 import logging
-from typing import Optional
 
 from autodiscovery.domain.entities import SourceEntry
 from autodiscovery.domain.interfaces import IRegistryRepository
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 class RegistryRepository(IRegistryRepository):
     """Implementation of registry repository."""
 
-    def __init__(self, registry_manager: Optional[RegistryManager] = None):
+    def __init__(self, registry_manager: RegistryManager | None = None):
         self.registry_manager = registry_manager or RegistryManager()
 
     def _to_domain_entry(self, entry: RegistrySourceEntry) -> SourceEntry:
@@ -47,7 +46,7 @@ class RegistryRepository(IRegistryRepository):
             s3_key=entry.s3_key,
         )
 
-    def get_entry(self, key: str) -> Optional[SourceEntry]:
+    def get_entry(self, key: str) -> SourceEntry | None:
         """Get entry by key."""
         registry_entry = self.registry_manager.get_entry(key)
         if registry_entry:
@@ -66,4 +65,3 @@ class RegistryRepository(IRegistryRepository):
     def list_keys(self) -> list[str]:
         """List all keys in registry."""
         return self.registry_manager.list_keys()
-

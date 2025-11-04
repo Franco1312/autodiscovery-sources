@@ -2,8 +2,6 @@
 
 from unittest.mock import Mock
 
-import pytest
-
 from autodiscovery.application.services.discovery_service import DiscoveryService
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import ISourceDiscoverer
@@ -49,4 +47,3 @@ def test_discovery_service_discover_exception():
 
     assert result is None
     mock_discoverer.discover.assert_called_once_with(["https://example.com"])
-

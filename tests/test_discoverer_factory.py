@@ -2,8 +2,6 @@
 
 from unittest.mock import Mock
 
-import pytest
-
 from autodiscovery.domain.interfaces import IHTTPClient, ISourceDiscoverer
 from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 
@@ -78,4 +76,3 @@ def test_discoverer_factory_register():
 
     # Clean up
     DiscovererFactory._discoverers.pop("test_discoverer", None)
-

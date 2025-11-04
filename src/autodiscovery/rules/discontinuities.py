@@ -1,9 +1,7 @@
 """Documentation of known discontinuities and metadata."""
 
-from typing import Dict, Optional
-
 # Known discontinuities per source key
-DISCONTINUITIES: Dict[str, Dict] = {
+DISCONTINUITIES: dict[str, dict] = {
     "bcra_series": {
         "notes": [
             "LELIQ TNA = s/o desde 2024-07-19",
@@ -13,7 +11,7 @@ DISCONTINUITIES: Dict[str, Dict] = {
 }
 
 
-def get_discontinuity_notes(key: str) -> Optional[str]:
+def get_discontinuity_notes(key: str) -> str | None:
     """Get discontinuity notes for source key."""
     disc = DISCONTINUITIES.get(key)
     if not disc:
@@ -24,4 +22,3 @@ def get_discontinuity_notes(key: str) -> Optional[str]:
         return "; ".join(notes)
 
     return None
-

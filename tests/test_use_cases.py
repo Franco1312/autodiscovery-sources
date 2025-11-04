@@ -5,15 +5,13 @@ from unittest.mock import Mock, patch
 import pytest
 
 from autodiscovery.application.services.contract_service import ContractService
-from autodiscovery.application.services.discovery_service import DiscoveryService
-from autodiscovery.application.services.validation_service import ValidationService
 from autodiscovery.application.usecases.discover_source_use_case import (
-    DiscoverSourceUseCase,
     DiscoverSourceResult,
+    DiscoverSourceUseCase,
 )
 from autodiscovery.application.usecases.validate_source_use_case import (
-    ValidateSourceUseCase,
     ValidateSourceResult,
+    ValidateSourceUseCase,
 )
 from autodiscovery.domain.entities import DiscoveredFile, SourceEntry
 from autodiscovery.domain.interfaces import (
@@ -103,9 +101,7 @@ def test_discover_source_use_case_success(
     mock_http_client = Mock(spec=IHTTPClient)
 
     # Mock discoverer factory
-    with patch.object(
-        DiscovererFactory, "create", return_value=mock_discoverer
-    ):
+    with patch.object(DiscovererFactory, "create", return_value=mock_discoverer):
         use_case = DiscoverSourceUseCase(
             contract_service=ContractService(mock_contract_repository),
             registry_repository=mock_registry_repository,
@@ -281,4 +277,3 @@ def test_validate_source_use_case_file_not_accessible(
     assert result.success is False
     assert result.status == "broken"
     mock_registry_repository.set_entry.assert_called_once()
-

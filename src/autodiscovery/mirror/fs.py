@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from autodiscovery.config import Config
 from autodiscovery.hashutil import sha256_stream
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class FileSystemMirror:
     """Filesystem mirror manager."""
 
-    def __init__(self, base_path: Optional[Path] = None):
+    def __init__(self, base_path: Path | None = None):
         self.base_path = base_path or Config.MIRRORS_PATH
 
     def mirror_file(
@@ -44,6 +43,7 @@ class FileSystemMirror:
 
         # Calculate SHA256 while streaming
         import io
+
         stream = io.BytesIO(response.content)
         sha256 = sha256_stream(stream)
 
@@ -53,4 +53,3 @@ class FileSystemMirror:
 
         logger.info(f"Mirrored to {stored_path} (SHA256: {sha256})")
         return stored_path, sha256
-

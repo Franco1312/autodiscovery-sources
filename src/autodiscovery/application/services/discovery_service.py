@@ -1,7 +1,6 @@
 """Service for discovering sources."""
 
 import logging
-from typing import List, Optional
 
 from autodiscovery.domain.entities import DiscoveredFile
 from autodiscovery.domain.interfaces import ISourceDiscoverer
@@ -15,7 +14,7 @@ class DiscoveryService:
     def __init__(self, discoverer: ISourceDiscoverer):
         self.discoverer = discoverer
 
-    def discover(self, start_urls: List[str]) -> Optional[DiscoveredFile]:
+    def discover(self, start_urls: list[str]) -> DiscoveredFile | None:
         """
         Discover file from start URLs.
 
@@ -30,4 +29,3 @@ class DiscoveryService:
         except Exception as e:
             logger.error(f"Discovery failed: {e}")
             return None
-

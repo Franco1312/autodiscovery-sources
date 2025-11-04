@@ -2,12 +2,9 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
 
-import pytest
 import yaml
 
-from autodiscovery.domain.interfaces import IContractRepository
 from autodiscovery.infrastructure.contract_repository import ContractRepository
 
 
@@ -112,4 +109,3 @@ def test_contract_repository_caching():
         assert contracts1 == contracts2
         assert len(contracts2) == 1
         assert contracts2[0]["key"] == "test_key"
-

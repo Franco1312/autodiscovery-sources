@@ -1,7 +1,5 @@
 """Validation rules implementation."""
 
-from typing import List, Optional
-
 from autodiscovery.domain.interfaces import IValidationRules
 from autodiscovery.rules.discontinuities import get_discontinuity_notes
 from autodiscovery.rules.validation import (
@@ -24,19 +22,18 @@ class ValidationRules(IValidationRules):
         """Validate size for key."""
         return validate_size(key, size_kb)
 
-    def get_expected_mime(self, key: str) -> Optional[str]:
+    def get_expected_mime(self, key: str) -> str | None:
         """Get expected MIME type for key."""
         return get_expected_mime(key)
 
-    def get_expected_mime_any(self, key: str) -> Optional[List[str]]:
+    def get_expected_mime_any(self, key: str) -> list[str] | None:
         """Get list of expected MIME types for key."""
         return get_expected_mime_any(key)
 
-    def get_min_size_kb(self, key: str) -> Optional[float]:
+    def get_min_size_kb(self, key: str) -> float | None:
         """Get minimum size in KB for key."""
         return get_min_size_kb(key)
 
-    def get_discontinuity_notes(self, key: str) -> Optional[str]:
+    def get_discontinuity_notes(self, key: str) -> str | None:
         """Get discontinuity notes for key."""
         return get_discontinuity_notes(key)
-
