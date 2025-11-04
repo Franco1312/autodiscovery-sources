@@ -4,15 +4,16 @@ from unittest.mock import Mock
 
 from autodiscovery.application.services.validation_service import ValidationService
 from autodiscovery.domain.entities import DiscoveredFile
-from autodiscovery.domain.interfaces import IFileValidator, IValidationRules
+
+# IFileValidator and IValidationRules are no longer interfaces, they are concrete services
 
 
 def test_validation_service_validate_ok():
     """Test validation with OK status."""
-    mock_file_validator = Mock(spec=IFileValidator)
+    mock_file_validator = Mock()
     mock_file_validator.validate_file.return_value = (True, "application/pdf", 100.0)
 
-    mock_validation_rules = Mock(spec=IValidationRules)
+    mock_validation_rules = Mock()
     mock_validation_rules.get_expected_mime.return_value = "application/pdf"
     mock_validation_rules.get_expected_mime_any.return_value = None
     mock_validation_rules.get_min_size_kb.return_value = 50.0
@@ -38,10 +39,10 @@ def test_validation_service_validate_ok():
 
 def test_validation_service_validate_suspect():
     """Test validation with suspect status."""
-    mock_file_validator = Mock(spec=IFileValidator)
+    mock_file_validator = Mock()
     mock_file_validator.validate_file.return_value = (True, "application/pdf", 100.0)
 
-    mock_validation_rules = Mock(spec=IValidationRules)
+    mock_validation_rules = Mock()
     mock_validation_rules.get_expected_mime.return_value = "application/pdf"
     mock_validation_rules.get_expected_mime_any.return_value = None
     mock_validation_rules.get_min_size_kb.return_value = 50.0
@@ -65,10 +66,10 @@ def test_validation_service_validate_suspect():
 
 def test_validation_service_validate_broken():
     """Test validation with broken status."""
-    mock_file_validator = Mock(spec=IFileValidator)
+    mock_file_validator = Mock()
     mock_file_validator.validate_file.return_value = (False, None, None)
 
-    mock_validation_rules = Mock(spec=IValidationRules)
+    mock_validation_rules = Mock()
     mock_validation_rules.get_expected_mime.return_value = "application/pdf"
     mock_validation_rules.get_expected_mime_any.return_value = None
     mock_validation_rules.get_min_size_kb.return_value = 50.0

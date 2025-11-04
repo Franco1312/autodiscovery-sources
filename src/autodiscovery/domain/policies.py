@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from typing import Any
 
-from dateutil import parser as date_parser
+from dateutil import parser as date_parser  # type: ignore[import-untyped]
 
 
 class VersioningPolicy:

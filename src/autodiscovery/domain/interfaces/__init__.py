@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 # New Clean Architecture ports
 from autodiscovery.domain.interfaces.contracts_port import IContractsPort
+from autodiscovery.domain.interfaces.discoverer_factory_port import IDiscovererFactoryPort
 from autodiscovery.domain.interfaces.html_port import IHTMLPort
 from autodiscovery.domain.interfaces.http_port import IHTTPPort
 from autodiscovery.domain.interfaces.mirror_port import IMirrorPort
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "IContractsPort",
+    "IDiscovererFactoryPort",
     "IHTTPPort",
     "IHTMLPort",
     "IRegistryPort",

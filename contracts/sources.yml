@@ -7,8 +7,25 @@
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp"
   crawl:
     follow_html: true
-    max_depth: 1
+    max_depth: 3
     same_domain_only: true
+    avoid_domains:
+      - "facebook.com"
+      - "twitter.com"
+      - "x.com"
+      - "instagram.com"
+      - "linkedin.com"
+      - "youtube.com"
+      - "tiktok.com"
+      - "pinterest.com"
+      - "snapchat.com"
+      - "reddit.com"
+      - "whatsapp.com"
+      - "telegram.org"
+      - "t.me"
+    avoid_keywords:
+      - "normativa"
+      - "normativo"
   match:
     kind: "regex_any"
     patterns:
@@ -19,6 +36,7 @@
       - "application/vnd.ms-excel.sheet.macroEnabled.12"
       - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     min_size_kb: 100
+    max_age_days: 365  # Solo archivos del último año
   select:
     prefer_ext: [".xlsm", ".xlsx", ".xls"]
     prefer_newest_by: "last_modified"
@@ -31,8 +49,25 @@
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
   crawl:
     follow_html: true
-    max_depth: 1
+    max_depth: 3
     same_domain_only: true
+    avoid_domains:
+      - "facebook.com"
+      - "twitter.com"
+      - "x.com"
+      - "instagram.com"
+      - "linkedin.com"
+      - "youtube.com"
+      - "tiktok.com"
+      - "pinterest.com"
+      - "snapchat.com"
+      - "reddit.com"
+      - "whatsapp.com"
+      - "telegram.org"
+      - "t.me"
+    avoid_keywords:
+      - "normativa"
+      - "normativo"
   match:
     kind: "regex_any"
     patterns:
@@ -44,8 +79,9 @@
       - "application/vnd.ms-excel"
       - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     min_size_kb: 60
+    max_age_days: 365  # Solo archivos del último año
   select:
-    prefer_ext: [".xls", ".xlsx"]
+    prefer_ext: [".xls", ".xlsx", ".xlsm", ".csv", ".pdf"]  # Excel/CSV primero, PDF último recurso
     prefer_newest_by: "date_from_filename_or_last_modified"
   mirror: true
   versioning: "date_from_filename_or_last_modified"
@@ -56,8 +92,25 @@
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
   crawl:
     follow_html: true
-    max_depth: 1
+    max_depth: 3
     same_domain_only: true
+    avoid_domains:
+      - "facebook.com"
+      - "twitter.com"
+      - "x.com"
+      - "instagram.com"
+      - "linkedin.com"
+      - "youtube.com"
+      - "tiktok.com"
+      - "pinterest.com"
+      - "snapchat.com"
+      - "reddit.com"
+      - "whatsapp.com"
+      - "telegram.org"
+      - "t.me"
+    avoid_keywords:
+      - "normativa"
+      - "normativo"
   match:
     kind: "regex_any"
     patterns:
@@ -65,10 +118,16 @@
       - "(?i)infomondiae\\.pdf$"
       - "(?i)Informe\\s+Monetario\\s+Diario\\.pdf$"
   expect:
-    mime_any: ["application/pdf"]
+    mime_any:
+      - "application/vnd.ms-excel"
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      - "application/vnd.ms-excel.sheet.macroEnabled.12"
+      - "text/csv"
+      - "application/pdf"  # PDF como último recurso
     min_size_kb: 200
+    max_age_days: 365  # Solo archivos del último año
   select:
-    prefer_ext: [".pdf"]
+    prefer_ext: [".xls", ".xlsx", ".xlsm", ".csv", ".pdf"]  # Excel/CSV primero, PDF último recurso
     prefer_newest_by: "date_from_filename_or_last_modified"
   mirror: true
   versioning: "date_from_filename_or_last_modified"
@@ -79,8 +138,25 @@
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
   crawl:
     follow_html: true
-    max_depth: 2
+    max_depth: 3
     same_domain_only: true
+    avoid_domains:
+      - "facebook.com"
+      - "twitter.com"
+      - "x.com"
+      - "instagram.com"
+      - "linkedin.com"
+      - "youtube.com"
+      - "tiktok.com"
+      - "pinterest.com"
+      - "snapchat.com"
+      - "reddit.com"
+      - "whatsapp.com"
+      - "telegram.org"
+      - "t.me"
+    avoid_keywords:
+      - "normativa"
+      - "normativo"
   match:
     kind: "regex_any"
     patterns:
@@ -90,6 +166,7 @@
   expect:
     mime_any: ["application/pdf"]
     min_size_kb: 200
+    max_age_days: 365  # Solo archivos del último año
   select:
     prefer_ext: [".pdf"]
     prefer_newest_by: "best_effort_date_or_last_modified"
@@ -103,8 +180,25 @@
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
   crawl:
     follow_html: true
-    max_depth: 2
+    max_depth: 3
     same_domain_only: true
+    avoid_domains:
+      - "facebook.com"
+      - "twitter.com"
+      - "x.com"
+      - "instagram.com"
+      - "linkedin.com"
+      - "youtube.com"
+      - "tiktok.com"
+      - "pinterest.com"
+      - "snapchat.com"
+      - "reddit.com"
+      - "whatsapp.com"
+      - "telegram.org"
+      - "t.me"
+    avoid_keywords:
+      - "normativa"
+      - "normativo"
   match:
     kind: "regex_any"
     patterns:
@@ -117,7 +211,7 @@
       - "application/vnd.ms-excel"
     min_size_kb: 120
   select:
-    prefer_ext: [".xlsx", ".xls"]
+    prefer_ext: [".xlsx", ".xls", ".xlsm", ".csv", ".pdf"]  # Excel/CSV primero, PDF último recurso
     prefer_newest_by: "best_effort_date_or_last_modified"
   mirror: true
   versioning: "best_effort_date_or_last_modified"

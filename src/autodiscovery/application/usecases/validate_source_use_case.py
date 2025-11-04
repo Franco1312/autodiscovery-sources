@@ -2,9 +2,9 @@
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 
 from autodiscovery.application.services.contract_service import ContractService
+from autodiscovery.application.usecases.helpers import RegistryEntryBuilder
 from autodiscovery.domain.entities import RegistryEntry
 from autodiscovery.domain.interfaces.http_port import IHTTPPort
 from autodiscovery.domain.interfaces.registry_port import IRegistryPort
@@ -17,7 +17,7 @@ class ValidateSourceResult:
     """Result of validate source use case."""
 
     key: str
-    entry: RegistryEntry
+    entry: RegistryEntry | None
     mime: str
     size_kb: float
     mime_valid: bool
@@ -97,19 +97,13 @@ class ValidateSourceUseCase:
             )
 
             if not is_valid:
-                # File is not accessible
-                updated_entry = RegistryEntry(
-                    key=key,
-                    url=entry.url,
-                    version=entry.version,
-                    mime=entry.mime,
-                    size_kb=entry.size_kb,
-                    sha256=entry.sha256,
-                    last_checked=datetime.now().isoformat() + "Z",
-                    status="broken",
-                    notes=entry.notes,
-                    stored_path=entry.stored_path,
-                    s3_key=entry.s3_key,
+                # File is not accessible - mark as broken
+                updated_entry = (
+                    RegistryEntryBuilder(key, entry.url, entry.version)
+                    .from_existing_entry(entry)
+                    .with_last_checked_now()
+                    .with_status("broken")
+                    .build()
                 )
                 self.registry_repository.set_entry(key, updated_entry)
                 return ValidateSourceResult(
@@ -128,24 +122,18 @@ class ValidateSourceUseCase:
             mime_valid = self.validation_rules.validate_mime(key, mime or "")
             size_valid = self.validation_rules.validate_size(key, size_kb or 0)
 
-            # Determine status
-            status = "ok"
-            if not mime_valid or not size_valid:
-                status = "suspect"
+            # Determine status based on validation results
+            status = "ok" if mime_valid and size_valid else "suspect"
 
-            # Update entry
-            updated_entry = RegistryEntry(
-                key=key,
-                url=entry.url,
-                version=entry.version,
-                mime=mime or "",
-                size_kb=size_kb or 0.0,
-                sha256=entry.sha256,
-                last_checked=datetime.now().isoformat() + "Z",
-                status=status,
-                notes=entry.notes,
-                stored_path=entry.stored_path,
-                s3_key=entry.s3_key,
+            # Update entry with validation results
+            updated_entry = (
+                RegistryEntryBuilder(key, entry.url, entry.version)
+                .from_existing_entry(entry)
+                .with_mime(mime or "")
+                .with_size(size_kb or 0.0)
+                .with_last_checked_now()
+                .with_status(status)
+                .build()
             )
 
             self.registry_repository.set_entry(key, updated_entry)
@@ -164,18 +152,12 @@ class ValidateSourceUseCase:
         except Exception as e:
             logger.error(f"Validation failed: {e}")
             # Update entry with broken status
-            broken_entry = RegistryEntry(
-                key=key,
-                url=entry.url,
-                version=entry.version,
-                mime=entry.mime,
-                size_kb=entry.size_kb,
-                sha256=entry.sha256,
-                last_checked=datetime.now().isoformat() + "Z",
-                status="broken",
-                notes=entry.notes,
-                stored_path=entry.stored_path,
-                s3_key=entry.s3_key,
+            broken_entry = (
+                RegistryEntryBuilder(key, entry.url, entry.version)
+                .from_existing_entry(entry)
+                .with_last_checked_now()
+                .with_status("broken")
+                .build()
             )
             self.registry_repository.set_entry(key, broken_entry)
             return ValidateSourceResult(

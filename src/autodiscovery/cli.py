@@ -27,17 +27,19 @@ from autodiscovery.domain.interfaces.contracts_port import IContractsPort
 from autodiscovery.domain.interfaces.registry_port import IRegistryPort
 from autodiscovery.http import HTTPClient
 from autodiscovery.infrastructure.contract_repository import ContractRepository
+from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 from autodiscovery.infrastructure.file_validator import FileValidator
 from autodiscovery.infrastructure.html_parser import HTMLParser
 from autodiscovery.infrastructure.mirror_service import MirrorService
 from autodiscovery.infrastructure.registry_repository import RegistryRepository
 from autodiscovery.infrastructure.validation_rules import ValidationRules
 
-# Configure logging
+# Configure logging to stderr only (not stdout)
 logging.basicConfig(
     level=logging.INFO,
     format='{"timestamp": "%(asctime)s", "level": "%(levelname)s", "message": "%(message)s"}',
     datefmt="%Y-%m-%dT%H:%M:%SZ",
+    stream=sys.stderr,  # Explicitly write logs to stderr
 )
 logger = logging.getLogger(__name__)
 
@@ -65,6 +67,7 @@ def discover(
         validation_rules = ValidationRules()
 
         # Create use case
+        discoverer_factory = DiscovererFactory()
         use_case = DiscoverSourceUseCase(
             contract_service=contract_service,
             registry_repository=registry_repository,
@@ -72,6 +75,7 @@ def discover(
             file_validator=file_validator,
             http_client=client,
             validation_rules=validation_rules,
+            discoverer_factory=discoverer_factory,
         )
 
         # Execute use case
@@ -263,6 +267,7 @@ def sync(
         validation_rules = ValidationRules()
 
         # Create use case
+        discoverer_factory = DiscovererFactory()
         use_case = DiscoverSourceUseCase(
             contract_service=contract_service,
             registry_repository=registry_repository,
@@ -270,6 +275,7 @@ def sync(
             file_validator=file_validator,
             http_client=client,
             validation_rules=validation_rules,
+            discoverer_factory=discoverer_factory,
         )
 
         # Execute for each contract
@@ -348,11 +354,13 @@ def discover_files(
         html_parser = HTMLParser(client)
 
         # Create use case
+        discoverer_factory = DiscovererFactory()
         use_case = DiscoverAllLinksUseCase(
             contract_service=contract_service,
             file_validator=file_validator,
             http_client=client,
             html_parser=html_parser,
+            discoverer_factory=discoverer_factory,
         )
 
         # Execute use case (always validate, URLs are normalized automatically)
@@ -411,17 +419,21 @@ def discover_files(
     }
 
     if output_json:
-        console.print(json.dumps(output, indent=2))
+        # Write JSON summary to stdout (not to the file)
+        print(json.dumps(output, indent=2), file=sys.stdout)
     else:
-        console.print("[green]Discovery complete![/green]")
-        console.print(f"  Output file: {output_path}")
-        console.print(f"  Sources processed: {len(all_files_data)}")
-        console.print(f"  Total valid files found: {total_files}")
-        console.print(f"  Selected files: {selected_count}")
-        console.print("  URLs normalized: ✓")
+        # Write human-readable output to stderr (not stdout, so it doesn't mix with file redirection)
+        # Create a Console instance that writes to stderr
+        stderr_console = Console(file=sys.stderr)
+        stderr_console.print("[green]Discovery complete![/green]")
+        stderr_console.print(f"  Output file: {output_path}")
+        stderr_console.print(f"  Sources processed: {len(all_files_data)}")
+        stderr_console.print(f"  Total valid files found: {total_files}")
+        stderr_console.print(f"  Selected files: {selected_count}")
+        stderr_console.print("  URLs normalized: ✓")
         if extensions:
-            console.print(f"  Filtered by extensions: {', '.join(extensions)}")
-        console.print(f"\nFiles saved to: {output_path}")
+            stderr_console.print(f"  Filtered by extensions: {', '.join(extensions)}")
+        stderr_console.print(f"\nFiles saved to: {output_path}")
 
     # Exit successfully
     sys.exit(0)

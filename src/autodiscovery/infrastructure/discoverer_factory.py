@@ -2,6 +2,7 @@
 
 import logging
 
+from autodiscovery.domain.interfaces.discoverer_factory_port import IDiscovererFactoryPort
 from autodiscovery.domain.interfaces.http_port import IHTTPPort
 from autodiscovery.domain.interfaces.source_discoverer_port import ISourceDiscovererPort
 from autodiscovery.sources.bcra_infomodia import BCRAInfomodiaDiscoverer
@@ -12,36 +13,40 @@ from autodiscovery.sources.indec_emae import INDECEMAEDiscoverer
 logger = logging.getLogger(__name__)
 
 
-class DiscovererFactory:
+class DiscovererFactory(IDiscovererFactoryPort):
     """Factory for creating source discoverers."""
 
     # Registry of discoverer classes by key
     _discoverers: dict[str, type[ISourceDiscovererPort]] = {
         "bcra_series": BCRASeriesDiscoverer,
-        "bcra_infomodia": BCRAInfomodiaDiscoverer,
+        "bcra_infomodia_xls": BCRAInfomodiaDiscoverer,
+        "bcra_infomodia_pdf": BCRAInfomodiaDiscoverer,  # Same discoverer, different format
         "bcra_rem_pdf": BCRAREMDiscoverer,
+        "bcra_rem_xlsx": BCRAREMDiscoverer,  # Same discoverer, different format
+        "indec_emae_api": INDECEMAEDiscoverer,
+        # Legacy keys for backward compatibility
+        "bcra_infomodia": BCRAInfomodiaDiscoverer,
         "indec_emae": INDECEMAEDiscoverer,
     }
 
-    @classmethod
-    def create(cls, key: str, client: IHTTPPort) -> ISourceDiscovererPort | None:
+    def create(self, key: str, http_client: IHTTPPort) -> ISourceDiscovererPort | None:
         """
         Create a discoverer for the given key.
 
         Args:
             key: Source key
-            client: HTTP client instance
+            http_client: HTTP client instance
 
         Returns:
             ISourceDiscovererPort instance or None if key not found
         """
-        discoverer_class = cls._discoverers.get(key)
+        discoverer_class = self._discoverers.get(key)
         if not discoverer_class:
             logger.warning(f"Discoverer not found for key: {key}")
             return None
 
         try:
-            return discoverer_class(client)  # type: ignore[call-arg]
+            return discoverer_class(http_client)  # type: ignore[call-arg]
         except Exception as e:
             logger.error(f"Failed to create discoverer for {key}: {e}")
             return None

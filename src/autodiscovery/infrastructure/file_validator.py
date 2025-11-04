@@ -1,6 +1,7 @@
 """File validator implementation."""
 
 import logging
+from datetime import UTC, datetime
 
 from autodiscovery.domain.interfaces.http_port import IHTTPPort
 
@@ -20,9 +21,18 @@ class FileValidator:
         expected_mime: str | None = None,
         expected_mime_any: list[str] | None = None,
         min_size_kb: float | None = None,
+        max_age_days: int | None = None,
     ) -> tuple[bool, str | None, float | None]:
         """
         Validate file accessibility and metadata.
+
+        Args:
+            url: URL to validate
+            key: Source key
+            expected_mime: Expected MIME type
+            expected_mime_any: List of acceptable MIME types
+            min_size_kb: Minimum size in KB
+            max_age_days: Maximum age in days (filters out old files)
 
         Returns (is_valid, mime, size_kb).
         """
@@ -78,6 +88,33 @@ class FileValidator:
             if size_kb < min_size and not has_attachment:
                 logger.debug(f"Link is too small to be a real file: {url} ({size_kb:.2f} KB)")
                 return False, None, None
+
+            # Verificar antigüedad máxima (usando Last-Modified header)
+            if max_age_days is not None:
+                last_modified_str = response.headers.get("last-modified")
+                if last_modified_str:
+                    try:
+                        # Parse Last-Modified header (RFC 2822 format)
+                        # Example: "Mon, 01 Jan 2024 12:00:00 GMT"
+                        from email.utils import parsedate_to_datetime
+
+                        last_modified = parsedate_to_datetime(last_modified_str)
+                        # Ensure timezone-aware
+                        if last_modified.tzinfo is None:
+                            last_modified = last_modified.replace(tzinfo=UTC)
+
+                        now = datetime.now(UTC)
+                        age_days = (now - last_modified).days
+
+                        if age_days > max_age_days:
+                            logger.debug(
+                                f"File too old: {url} (age: {age_days} days, max: {max_age_days} days)"
+                            )
+                            return False, None, None
+                    except (ValueError, TypeError) as e:
+                        logger.debug(f"Could not parse Last-Modified header for {url}: {e}")
+                        # If we can't parse the date, we can't filter by age, so we accept it
+                        # (could be more strict and reject, but this is safer)
 
             return True, mime, size_kb
 
