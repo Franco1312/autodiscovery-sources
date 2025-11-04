@@ -3,12 +3,12 @@
 from unittest.mock import Mock
 
 from autodiscovery.application.services.contract_service import ContractService
-from autodiscovery.domain.interfaces import IContractRepository
+from autodiscovery.domain.interfaces import IContractsPort
 
 
 def test_contract_service_load_contracts():
     """Test ContractService loading contracts."""
-    mock_repository = Mock(spec=IContractRepository)
+    mock_repository = Mock(spec=IContractsPort)
     mock_repository.load_contracts.return_value = [
         {"key": "test_key", "start_urls": ["https://example.com"]}
     ]
@@ -23,7 +23,7 @@ def test_contract_service_load_contracts():
 
 def test_contract_service_get_contract():
     """Test ContractService getting a specific contract."""
-    mock_repository = Mock(spec=IContractRepository)
+    mock_repository = Mock(spec=IContractsPort)
     mock_repository.get_contract.return_value = {
         "key": "test_key",
         "start_urls": ["https://example.com"],
@@ -39,7 +39,7 @@ def test_contract_service_get_contract():
 
 def test_contract_service_get_all_keys():
     """Test ContractService getting all keys."""
-    mock_repository = Mock(spec=IContractRepository)
+    mock_repository = Mock(spec=IContractsPort)
     mock_repository.get_all_keys.return_value = ["test_key", "test_key2"]
 
     service = ContractService(mock_repository)

@@ -1,6 +1,5 @@
 """Validation rules implementation."""
 
-from autodiscovery.domain.interfaces import IValidationRules
 from autodiscovery.rules.discontinuities import get_discontinuity_notes
 from autodiscovery.rules.validation import (
     get_expected_mime,
@@ -11,7 +10,7 @@ from autodiscovery.rules.validation import (
 )
 
 
-class ValidationRules(IValidationRules):
+class ValidationRules:
     """Implementation of validation rules."""
 
     def validate_mime(self, key: str, mime: str) -> bool:

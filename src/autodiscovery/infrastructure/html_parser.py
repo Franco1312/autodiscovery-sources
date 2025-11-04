@@ -5,7 +5,8 @@ from urllib.parse import quote, urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
-from autodiscovery.domain.interfaces import IHTMLParser, IHTTPClient
+from autodiscovery.domain.interfaces.html_port import IHTMLPort
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
 
 logger = logging.getLogger(__name__)
 
@@ -32,60 +33,45 @@ def normalize_url(url: str) -> str:
     return normalized
 
 
-class HTMLParser(IHTMLParser):
+class HTMLParser(IHTMLPort):
     """Implementation of HTML parser using BeautifulSoup."""
 
-    def __init__(self, http_client: IHTTPClient):
-        self.http_client = http_client
+    def __init__(self, http_port: IHTTPPort):
+        self.http_port = http_port
 
-    def fetch_html(self, url: str) -> BeautifulSoup:
+    def fetch_html(self, url: str):
         """Fetch and parse HTML from URL."""
-        if self.http_client is None:
-            raise ValueError("HTTP client is required for fetch_html")
-        response = self.http_client.get(url)
+        if self.http_port is None:
+            raise ValueError("HTTP port is required for fetch_html")
+        response = self.http_port.get(url)
         soup = BeautifulSoup(response.content, "lxml")
         return soup
 
-    def find_links(
+    def extract_links(
         self,
-        soup: BeautifulSoup,
+        html,
         base_url: str,
-        pattern: str | None = None,
-        text_contains: list[str] | None = None,
-        ext: list[str] | None = None,
     ) -> list[tuple[str, str]]:
         """
-        Find links matching criteria.
+        Extract all links from HTML and normalize URLs.
 
-        Returns list of (href, text) tuples with absolute URLs (normalized).
+        Args:
+            html: HTML soup object
+            base_url: Base URL for resolving relative links
+
+        Returns:
+            List of (href, text) tuples with normalized absolute URLs
         """
         links = []
-        for anchor in soup.find_all("a", href=True):
+        for anchor in html.find_all("a", href=True):
             href = anchor.get("href", "")
             text = anchor.get_text(strip=True)
 
-            # Resolve relative URLs
+            # Resolve relative URLs using urljoin
             absolute_url = urljoin(base_url, href)
 
-            # Normalize URL (encode spaces and special characters)
+            # Normalize URL (encode spaces, special chars, accents)
             absolute_url = normalize_url(absolute_url)
-
-            # Filter by extension if specified
-            if ext:
-                parsed = urlparse(absolute_url)
-                if not any(parsed.path.lower().endswith(e.lower()) for e in ext):
-                    continue
-
-            # Filter by text contains if specified
-            if text_contains and not any(term.lower() in text.lower() for term in text_contains):
-                continue
-
-            # Filter by pattern if specified
-            if pattern:
-                import re
-
-                if not re.search(pattern, absolute_url, re.IGNORECASE):
-                    continue
 
             links.append((absolute_url, text))
 

@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 
-from autodiscovery.domain.interfaces import IMirrorService
+from autodiscovery.domain.interfaces.mirror_port import IMirrorPort
 from autodiscovery.http import HTTPClient
 from autodiscovery.mirror.fs import FileSystemMirror
 from autodiscovery.mirror.s3 import S3Mirror
@@ -11,7 +11,7 @@ from autodiscovery.mirror.s3 import S3Mirror
 logger = logging.getLogger(__name__)
 
 
-class MirrorService(IMirrorService):
+class MirrorService(IMirrorPort):
     """Implementation of mirror service using filesystem and optional S3."""
 
     def __init__(self, client: HTTPClient):
@@ -39,3 +39,12 @@ class MirrorService(IMirrorService):
             logger.debug(f"S3 mirror result: {s3_key}")
 
         return stored_path, sha256
+
+    def get_mirror_path(
+        self,
+        key: str,
+        version: str,
+        filename: str,
+    ) -> Path:
+        """Get expected mirror path for a file."""
+        return self.fs_mirror.base_path / key / version / filename

@@ -7,12 +7,12 @@ from typing import Any
 import yaml
 
 from autodiscovery.config import Config
-from autodiscovery.domain.interfaces import IContractRepository
+from autodiscovery.domain.interfaces.contracts_port import IContractsPort
 
 logger = logging.getLogger(__name__)
 
 
-class ContractRepository(IContractRepository):
+class ContractRepository(IContractsPort):
     """Implementation of contract repository."""
 
     def __init__(self, contracts_path: Path | None = None):

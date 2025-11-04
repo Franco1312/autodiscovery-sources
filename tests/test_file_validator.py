@@ -4,13 +4,13 @@ from unittest.mock import Mock
 
 from httpx import Response
 
-from autodiscovery.domain.interfaces import IHTTPClient
+from autodiscovery.domain.interfaces import IHTTPPort
 from autodiscovery.infrastructure.file_validator import FileValidator
 
 
 def test_file_validator_valid_file():
     """Test validation of a valid file."""
-    mock_client = Mock(spec=IHTTPClient)
+    mock_client = Mock(spec=IHTTPPort)
     mock_response = Mock(spec=Response)
     mock_response.headers = {
         "content-type": "application/pdf",
@@ -25,12 +25,12 @@ def test_file_validator_valid_file():
     assert is_valid is True
     assert mime == "application/pdf"
     assert size_kb == 100.0
-    mock_client.head.assert_called_once_with("https://example.com/file.pdf")
+    mock_client.head.assert_called_once_with("https://example.com/file.pdf", headers=None)
 
 
 def test_file_validator_html_page():
     """Test validation rejects HTML pages."""
-    mock_client = Mock(spec=IHTTPClient)
+    mock_client = Mock(spec=IHTTPPort)
     mock_response = Mock(spec=Response)
     mock_response.headers = {
         "content-type": "text/html",
@@ -49,7 +49,7 @@ def test_file_validator_html_page():
 
 def test_file_validator_small_file():
     """Test validation rejects files that are too small."""
-    mock_client = Mock(spec=IHTTPClient)
+    mock_client = Mock(spec=IHTTPPort)
     mock_response = Mock(spec=Response)
     mock_response.headers = {
         "content-type": "application/pdf",
@@ -68,7 +68,7 @@ def test_file_validator_small_file():
 
 def test_file_validator_with_attachment():
     """Test validation accepts files with Content-Disposition attachment."""
-    mock_client = Mock(spec=IHTTPClient)
+    mock_client = Mock(spec=IHTTPPort)
     mock_response = Mock(spec=Response)
     mock_response.headers = {
         "content-type": "application/octet-stream",
@@ -88,7 +88,7 @@ def test_file_validator_with_attachment():
 
 def test_file_validator_http_error():
     """Test validation handles HTTP errors."""
-    mock_client = Mock(spec=IHTTPClient)
+    mock_client = Mock(spec=IHTTPPort)
     mock_client.head.side_effect = Exception("Network error")
 
     validator = FileValidator(mock_client)
@@ -101,7 +101,7 @@ def test_file_validator_http_error():
 
 def test_file_validator_with_min_size():
     """Test validation with minimum size requirement."""
-    mock_client = Mock(spec=IHTTPClient)
+    mock_client = Mock(spec=IHTTPPort)
     mock_response = Mock(spec=Response)
     mock_response.headers = {
         "content-type": "application/pdf",

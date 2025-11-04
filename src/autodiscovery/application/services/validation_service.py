@@ -3,7 +3,9 @@
 import logging
 
 from autodiscovery.domain.entities import DiscoveredFile
-from autodiscovery.domain.interfaces import IFileValidator, IValidationRules
+
+# IFileValidator and IValidationRules are domain interfaces, not ports
+# They are used directly as services
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +15,8 @@ class ValidationService:
 
     def __init__(
         self,
-        file_validator: IFileValidator,
-        validation_rules: IValidationRules,
+        file_validator,  # FileValidator service
+        validation_rules,  # ValidationRules service
     ):
         self.file_validator = file_validator
         self.validation_rules = validation_rules

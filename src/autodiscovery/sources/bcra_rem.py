@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from autodiscovery.domain.entities import DiscoveredFile
-from autodiscovery.html import fetch_html, find_links
+from autodiscovery.infrastructure.html_parser import HTMLParser
 from autodiscovery.sources.base import BaseDiscoverer
 from autodiscovery.util.date import normalize_spanish_month, version_from_year_month
 
@@ -25,8 +25,11 @@ class BCRAREMDiscoverer(BaseDiscoverer):
 
         for url in start_urls:
             try:
-                soup = fetch_html(url, self.client)
-                links = find_links(soup, url, ext=[".pdf"])
+                html_parser = HTMLParser(self.client)
+                soup = html_parser.fetch_html(url)
+                links = html_parser.extract_links(soup, url)
+                # Filter by extension
+                links = [link for link in links if link[0].lower().endswith(".pdf")]
 
                 # Find all REM PDFs
                 for link_url, _link_text in links:

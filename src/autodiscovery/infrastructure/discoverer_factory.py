@@ -2,7 +2,8 @@
 
 import logging
 
-from autodiscovery.domain.interfaces import IHTTPClient, ISourceDiscoverer
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
+from autodiscovery.domain.interfaces.source_discoverer_port import ISourceDiscovererPort
 from autodiscovery.sources.bcra_infomodia import BCRAInfomodiaDiscoverer
 from autodiscovery.sources.bcra_rem import BCRAREMDiscoverer
 from autodiscovery.sources.bcra_series import BCRASeriesDiscoverer
@@ -15,7 +16,7 @@ class DiscovererFactory:
     """Factory for creating source discoverers."""
 
     # Registry of discoverer classes by key
-    _discoverers: dict[str, type[ISourceDiscoverer]] = {
+    _discoverers: dict[str, type[ISourceDiscovererPort]] = {
         "bcra_series": BCRASeriesDiscoverer,
         "bcra_infomodia": BCRAInfomodiaDiscoverer,
         "bcra_rem_pdf": BCRAREMDiscoverer,
@@ -23,7 +24,7 @@ class DiscovererFactory:
     }
 
     @classmethod
-    def create(cls, key: str, client: IHTTPClient) -> ISourceDiscoverer | None:
+    def create(cls, key: str, client: IHTTPPort) -> ISourceDiscovererPort | None:
         """
         Create a discoverer for the given key.
 
@@ -32,7 +33,7 @@ class DiscovererFactory:
             client: HTTP client instance
 
         Returns:
-            ISourceDiscoverer instance or None if key not found
+            ISourceDiscovererPort instance or None if key not found
         """
         discoverer_class = cls._discoverers.get(key)
         if not discoverer_class:
@@ -46,13 +47,13 @@ class DiscovererFactory:
             return None
 
     @classmethod
-    def register(cls, key: str, discoverer_class: type[ISourceDiscoverer]) -> None:
+    def register(cls, key: str, discoverer_class: type[ISourceDiscovererPort]) -> None:
         """
         Register a new discoverer class.
 
         Args:
             key: Source key
-            discoverer_class: Discoverer class implementing ISourceDiscoverer
+            discoverer_class: Discoverer class implementing ISourceDiscovererPort
         """
         cls._discoverers[key] = discoverer_class
         logger.debug(f"Registered discoverer for key: {key}")

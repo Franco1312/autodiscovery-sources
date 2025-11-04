@@ -11,12 +11,12 @@ from tenacity import (
 )
 
 from autodiscovery.config import Config
-from autodiscovery.domain.interfaces import IHTTPClient
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
 
 logger = logging.getLogger(__name__)
 
 
-class HTTPClient(IHTTPClient):
+class HTTPClient(IHTTPPort):
     """HTTP client with retry logic and timeouts."""
 
     def __init__(
@@ -43,7 +43,7 @@ class HTTPClient(IHTTPClient):
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
     )
-    def head(self, url: str) -> httpx.Response:
+    def head(self, url: str, headers: dict[str, str] | None = None) -> httpx.Response:
         """Perform HEAD request with retry."""
         try:
             response = self._client.head(url)
@@ -58,7 +58,7 @@ class HTTPClient(IHTTPClient):
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
     )
-    def get(self, url: str) -> httpx.Response:
+    def get(self, url: str, headers: dict[str, str] | None = None) -> httpx.Response:
         """Perform GET request with retry."""
         try:
             response = self._client.get(url)
@@ -68,7 +68,7 @@ class HTTPClient(IHTTPClient):
             logger.warning(f"GET request failed for {url}: {e}")
             raise
 
-    def stream(self, url: str):
+    def stream(self, url: str, headers: dict[str, str] | None = None):
         """Stream download from URL."""
         try:
             with self._client.stream("GET", url) as response:
@@ -82,8 +82,8 @@ class HTTPClient(IHTTPClient):
         """Close the HTTP client."""
         self._client.close()
 
-    def __enter__(self):
+    def __enter__(self) -> "HTTPClient":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()

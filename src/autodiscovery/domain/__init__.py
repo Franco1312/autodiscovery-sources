@@ -1,26 +1,22 @@
 """Domain layer: entities, value objects, and interfaces."""
 
-from autodiscovery.domain.entities import DiscoveredFile, SourceEntry
+from autodiscovery.domain.entities import DiscoveredFile, RegistryEntry
 from autodiscovery.domain.interfaces import (
-    IContractRepository,
-    IFileValidator,
-    IHTMLParser,
-    IHTTPClient,
-    IMirrorService,
-    IRegistryRepository,
-    ISourceDiscoverer,
-    IValidationRules,
+    IContractsPort,
+    IHTMLPort,
+    IHTTPPort,
+    IMirrorPort,
+    IRegistryPort,
+    ISourceDiscovererPort,
 )
 
 __all__ = [
     "DiscoveredFile",
-    "SourceEntry",
-    "ISourceDiscoverer",
-    "IRegistryRepository",
-    "IMirrorService",
-    "IFileValidator",
-    "IHTTPClient",
-    "IHTMLParser",
-    "IValidationRules",
-    "IContractRepository",
+    "RegistryEntry",
+    "IContractsPort",
+    "IHTTPPort",
+    "IHTMLPort",
+    "IRegistryPort",
+    "IMirrorPort",
+    "ISourceDiscovererPort",
 ]

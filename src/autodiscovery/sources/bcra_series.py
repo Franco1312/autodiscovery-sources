@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from autodiscovery.domain.entities import DiscoveredFile
-from autodiscovery.html import fetch_html, find_links
+from autodiscovery.infrastructure.html_parser import HTMLParser
 from autodiscovery.sources.base import BaseDiscoverer
 from autodiscovery.util.date import version_from_date_today
 
@@ -21,8 +21,9 @@ class BCRASeriesDiscoverer(BaseDiscoverer):
 
         for url in start_urls:
             try:
-                soup = fetch_html(url, self.client)
-                links = find_links(soup, url)
+                html_parser = HTMLParser(self.client)
+                soup = html_parser.fetch_html(url)
+                links = html_parser.extract_links(soup, url)
 
                 # Find exact match for series.xlsm
                 for link_url, _link_text in links:

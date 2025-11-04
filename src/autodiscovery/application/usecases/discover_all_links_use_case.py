@@ -6,7 +6,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from autodiscovery.application.services.contract_service import ContractService
-from autodiscovery.domain.interfaces import IFileValidator, IHTMLParser, IHTTPClient
+from autodiscovery.domain.interfaces.html_port import IHTMLPort
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
 from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 
 logger = logging.getLogger(__name__)
@@ -55,9 +56,9 @@ class DiscoverAllLinksUseCase:
     def __init__(
         self,
         contract_service: ContractService,
-        file_validator: IFileValidator | None,
-        http_client: IHTTPClient,
-        html_parser: IHTMLParser,
+        file_validator,  # FileValidator service (no port needed)
+        http_client: IHTTPPort,
+        html_parser: IHTMLPort,
     ):
         self.contract_service = contract_service
         self.file_validator = file_validator
@@ -108,9 +109,14 @@ class DiscoverAllLinksUseCase:
                 for start_url in start_urls:
                     try:
                         soup = self.html_parser.fetch_html(start_url)
-                        all_links = self.html_parser.find_links(
-                            soup, start_url, ext=filter_extensions if filter_extensions else None
-                        )
+                        all_links = self.html_parser.extract_links(soup, start_url)
+                        # Filter by extension if needed
+                        if filter_extensions:
+                            all_links = [
+                                link
+                                for link in all_links
+                                if any(link[0].lower().endswith(ext) for ext in filter_extensions)
+                            ]
                         logger.info(f"Found {len(all_links)} links from {start_url}")
 
                         # Process each link

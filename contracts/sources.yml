@@ -1,57 +1,135 @@
-# Source discovery contracts
+# Source discovery contracts (resilient version)
 # Each item defines how to discover and validate a resource
 
 - key: "bcra_series"
   start_urls:
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp"
+  crawl:
+    follow_html: true
+    max_depth: 1
+    same_domain_only: true
   match:
-    kind: "fixed_filename"
-    pattern: "series.xlsm"
+    kind: "regex_any"
+    patterns:
+      - "(?i)series\\.xlsm$"
+      - "(?i)series[-_]?v\\d+\\.xlsm$"
   expect:
-    mime: "application/vnd.ms-excel.sheet.macroEnabled.12"
+    mime_any:
+      - "application/vnd.ms-excel.sheet.macroEnabled.12"
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     min_size_kb: 100
+  select:
+    prefer_ext: [".xlsm", ".xlsx", ".xls"]
+    prefer_newest_by: "last_modified"
   mirror: true
-  versioning: "date_today"  # if no date in filename, version by discovery date
+  versioning: "date_today"
+  notes: "Hoja larga con series históricas."
 
-- key: "bcra_infomodia"
+- key: "bcra_infomodia_xls"
   start_urls:
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
+  crawl:
+    follow_html: true
+    max_depth: 1
+    same_domain_only: true
   match:
-    kind: "date_pattern"
-    regex: "infomodia-(\\d{4}-\\d{2}-\\d{2})\\.xls"
+    kind: "regex_any"
+    patterns:
+      - "(?i)infomodia-(\\d{4}-\\d{2}-\\d{2})\\.xls$"
+      - "(?i)informe[_-]?monetario[_-]?diario-(\\d{4}-\\d{2}-\\d{2})\\.xls$"
+      - "(?i)infomondia\\.xls$"
   expect:
-    mime: "application/vnd.ms-excel"
-    min_size_kb: 50
+    mime_any:
+      - "application/vnd.ms-excel"
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    min_size_kb: 60
+  select:
+    prefer_ext: [".xls", ".xlsx"]
+    prefer_newest_by: "date_from_filename_or_last_modified"
   mirror: true
-  versioning: "date_from_filename"  # use captured group as version
+  versioning: "date_from_filename_or_last_modified"
+  notes: "Si no hay fecha en filename, usar Last-Modified."
+
+- key: "bcra_infomodia_pdf"
+  start_urls:
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
+  crawl:
+    follow_html: true
+    max_depth: 1
+    same_domain_only: true
+  match:
+    kind: "regex_any"
+    patterns:
+      - "(?i)infomodia[-_]?\\d{4}-\\d{2}-\\d{2}\\.pdf$"
+      - "(?i)infomondiae\\.pdf$"
+      - "(?i)Informe\\s+Monetario\\s+Diario\\.pdf$"
+  expect:
+    mime_any: ["application/pdf"]
+    min_size_kb: 200
+  select:
+    prefer_ext: [".pdf"]
+    prefer_newest_by: "date_from_filename_or_last_modified"
+  mirror: true
+  versioning: "date_from_filename_or_last_modified"
+  notes: "Documento de respaldo."
 
 - key: "bcra_rem_pdf"
   start_urls:
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
+  crawl:
+    follow_html: true
+    max_depth: 2
+    same_domain_only: true
   match:
-    kind: "month_pattern"
-    regex: "relevamiento-expectativas-mercado-(\\w+)-(\\d{4})\\.pdf"  # e.g: sep-2025/noviembre-2025
-    locale_hint: "es"
+    kind: "regex_any"
+    patterns:
+      - "(?i)relevamiento[-_ ]expectativas[-_ ]mercado[-_ ](\\w+)[-_ ](\\d{4})\\.pdf$"
+      - "(?i)REM\\d{6,8}.*Resultados.*\\.pdf$"
+      - "(?i)REM.*Resultados\\s*web\\.pdf$"
   expect:
-    mime: "application/pdf"
+    mime_any: ["application/pdf"]
     min_size_kb: 200
+  select:
+    prefer_ext: [".pdf"]
+    prefer_newest_by: "best_effort_date_or_last_modified"
+    locale_hint: "es"
   mirror: true
-  versioning: "year_month_from_filename"
+  versioning: "best_effort_date_or_last_modified"
+  notes: "PDF mensual del REM."
 
-- key: "indec_emae"
+- key: "bcra_rem_xlsx"
   start_urls:
-    - "https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos-4"
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
+  crawl:
+    follow_html: true
+    max_depth: 2
+    same_domain_only: true
   match:
-    kind: "fuzzy_text_and_ext"
-    text_contains_any: ["EMAE", "Estimador mensual de actividad económica"]
-    ext: [".xlsx", ".xls", ".csv", ".pdf"]
+    kind: "regex_any"
+    patterns:
+      - "(?i)REM\\d{6,8}.*Tablas.*\\.xlsx$"
+      - "(?i)Tablas\\s*web\\.xlsx$"
+      - "(?i)Base\\s*de\\s*Resultados.*\\.xlsx$"
   expect:
     mime_any:
       - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       - "application/vnd.ms-excel"
-      - "application/pdf"
-      - "text/csv"
-    min_size_kb: 50
+    min_size_kb: 120
+  select:
+    prefer_ext: [".xlsx", ".xls"]
+    prefer_newest_by: "best_effort_date_or_last_modified"
   mirror: true
-  versioning: "date_today"
+  versioning: "best_effort_date_or_last_modified"
+  notes: "Tablas del REM; relacionar con bcra_rem_pdf."
+
+# EMAE: API robusta (no HTML)
+- key: "indec_emae_api"
+  source_type: "api"
+  endpoint: "https://apis.datos.gob.ar/series/api/series?ids=173.1_EMAE_2016_M_19"
+  headers:
+    Accept-Language: "es-AR"
+    User-Agent: "RadarAutodiscovery/1.0"
+  mirror: false
+  versioning: "none"
+  notes: "Evita scraping; usar ingestor para consumir."

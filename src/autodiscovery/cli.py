@@ -23,7 +23,8 @@ from autodiscovery.application.usecases.discover_source_use_case import (
 from autodiscovery.application.usecases.validate_source_use_case import (
     ValidateSourceUseCase,
 )
-from autodiscovery.domain.interfaces import IContractRepository, IRegistryRepository
+from autodiscovery.domain.interfaces.contracts_port import IContractsPort
+from autodiscovery.domain.interfaces.registry_port import IRegistryPort
 from autodiscovery.http import HTTPClient
 from autodiscovery.infrastructure.contract_repository import ContractRepository
 from autodiscovery.infrastructure.file_validator import FileValidator
@@ -45,9 +46,9 @@ console = Console()
 
 
 # Services (dependency injection)
-contract_repository: IContractRepository = ContractRepository()
+contract_repository: IContractsPort = ContractRepository()
 contract_service = ContractService(contract_repository)
-registry_repository: IRegistryRepository = RegistryRepository()
+registry_repository: IRegistryPort = RegistryRepository()
 
 
 @app.command()

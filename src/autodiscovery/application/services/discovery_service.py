@@ -3,7 +3,7 @@
 import logging
 
 from autodiscovery.domain.entities import DiscoveredFile
-from autodiscovery.domain.interfaces import ISourceDiscoverer
+from autodiscovery.domain.interfaces.source_discoverer_port import ISourceDiscovererPort
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class DiscoveryService:
     """Service for discovering sources."""
 
-    def __init__(self, discoverer: ISourceDiscoverer):
+    def __init__(self, discoverer: ISourceDiscovererPort):
         self.discoverer = discoverer
 
     def discover(self, start_urls: list[str]) -> DiscoveredFile | None:

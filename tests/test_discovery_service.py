@@ -4,12 +4,12 @@ from unittest.mock import Mock
 
 from autodiscovery.application.services.discovery_service import DiscoveryService
 from autodiscovery.domain.entities import DiscoveredFile
-from autodiscovery.domain.interfaces import ISourceDiscoverer
+from autodiscovery.domain.interfaces import ISourceDiscovererPort
 
 
 def test_discovery_service_discover_success():
     """Test successful discovery."""
-    mock_discoverer = Mock(spec=ISourceDiscoverer)
+    mock_discoverer = Mock(spec=ISourceDiscovererPort)
     mock_discoverer.discover.return_value = DiscoveredFile(
         url="https://example.com/file.xls",
         version="v2025-11-04",
@@ -27,7 +27,7 @@ def test_discovery_service_discover_success():
 
 def test_discovery_service_discover_failure():
     """Test discovery failure."""
-    mock_discoverer = Mock(spec=ISourceDiscoverer)
+    mock_discoverer = Mock(spec=ISourceDiscovererPort)
     mock_discoverer.discover.return_value = None
 
     service = DiscoveryService(mock_discoverer)
@@ -39,7 +39,7 @@ def test_discovery_service_discover_failure():
 
 def test_discovery_service_discover_exception():
     """Test discovery with exception."""
-    mock_discoverer = Mock(spec=ISourceDiscoverer)
+    mock_discoverer = Mock(spec=ISourceDiscovererPort)
     mock_discoverer.discover.side_effect = Exception("Network error")
 
     service = DiscoveryService(mock_discoverer)

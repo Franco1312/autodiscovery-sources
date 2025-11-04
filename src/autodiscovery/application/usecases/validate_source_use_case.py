@@ -5,13 +5,9 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from autodiscovery.application.services.contract_service import ContractService
-from autodiscovery.domain.entities import SourceEntry
-from autodiscovery.domain.interfaces import (
-    IFileValidator,
-    IHTTPClient,
-    IRegistryRepository,
-    IValidationRules,
-)
+from autodiscovery.domain.entities import RegistryEntry
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
+from autodiscovery.domain.interfaces.registry_port import IRegistryPort
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +17,7 @@ class ValidateSourceResult:
     """Result of validate source use case."""
 
     key: str
-    entry: SourceEntry
+    entry: RegistryEntry
     mime: str
     size_kb: float
     mime_valid: bool
@@ -36,11 +32,11 @@ class ValidateSourceUseCase:
 
     def __init__(
         self,
-        registry_repository: IRegistryRepository,
-        file_validator: IFileValidator,
+        registry_repository: IRegistryPort,
+        file_validator,  # FileValidator service (no port needed)
         contract_service: ContractService,
-        http_client: IHTTPClient,
-        validation_rules: IValidationRules,
+        http_client: IHTTPPort,
+        validation_rules,  # ValidationRules service (no port needed)
     ):
         self.registry_repository = registry_repository
         self.file_validator = file_validator
@@ -102,7 +98,8 @@ class ValidateSourceUseCase:
 
             if not is_valid:
                 # File is not accessible
-                updated_entry = SourceEntry(
+                updated_entry = RegistryEntry(
+                    key=key,
                     url=entry.url,
                     version=entry.version,
                     mime=entry.mime,
@@ -137,7 +134,8 @@ class ValidateSourceUseCase:
                 status = "suspect"
 
             # Update entry
-            updated_entry = SourceEntry(
+            updated_entry = RegistryEntry(
+                key=key,
                 url=entry.url,
                 version=entry.version,
                 mime=mime or "",
@@ -166,7 +164,8 @@ class ValidateSourceUseCase:
         except Exception as e:
             logger.error(f"Validation failed: {e}")
             # Update entry with broken status
-            broken_entry = SourceEntry(
+            broken_entry = RegistryEntry(
+                key=key,
                 url=entry.url,
                 version=entry.version,
                 mime=entry.mime,

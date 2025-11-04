@@ -2,15 +2,15 @@
 
 import logging
 
-from autodiscovery.domain.interfaces import IFileValidator, IHTTPClient
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
 
 logger = logging.getLogger(__name__)
 
 
-class FileValidator(IFileValidator):
+class FileValidator:
     """Implementation of file validator using HTTP HEAD requests."""
 
-    def __init__(self, client: IHTTPClient):
+    def __init__(self, client: IHTTPPort):
         self.client = client
 
     def validate_file(
@@ -27,7 +27,7 @@ class FileValidator(IFileValidator):
         Returns (is_valid, mime, size_kb).
         """
         try:
-            response = self.client.head(url)
+            response = self.client.head(url, headers=None)
             response.raise_for_status()
 
             mime = response.headers.get("content-type", "").split(";")[0].strip()

@@ -2,23 +2,24 @@
 
 import logging
 
-from autodiscovery.domain.entities import SourceEntry
-from autodiscovery.domain.interfaces import IRegistryRepository
+from autodiscovery.domain.entities import RegistryEntry
+from autodiscovery.domain.interfaces.registry_port import IRegistryPort
 from autodiscovery.registry.models import SourceEntry as RegistrySourceEntry
 from autodiscovery.registry.registry import RegistryManager
 
 logger = logging.getLogger(__name__)
 
 
-class RegistryRepository(IRegistryRepository):
+class RegistryRepository(IRegistryPort):
     """Implementation of registry repository."""
 
     def __init__(self, registry_manager: RegistryManager | None = None):
         self.registry_manager = registry_manager or RegistryManager()
 
-    def _to_domain_entry(self, entry: RegistrySourceEntry) -> SourceEntry:
-        """Convert registry SourceEntry to domain SourceEntry."""
-        return SourceEntry(
+    def _to_domain_entry(self, entry: RegistrySourceEntry, key: str) -> RegistryEntry:
+        """Convert registry SourceEntry to domain RegistryEntry."""
+        return RegistryEntry(
+            key=key,
             url=entry.url,
             version=entry.version,
             mime=entry.mime,
@@ -31,8 +32,8 @@ class RegistryRepository(IRegistryRepository):
             s3_key=entry.s3_key,
         )
 
-    def _to_registry_entry(self, entry: SourceEntry) -> RegistrySourceEntry:
-        """Convert domain SourceEntry to registry SourceEntry."""
+    def _to_registry_entry(self, entry: RegistryEntry) -> RegistrySourceEntry:
+        """Convert domain RegistryEntry to registry SourceEntry."""
         return RegistrySourceEntry(
             url=entry.url,
             version=entry.version,
@@ -46,14 +47,14 @@ class RegistryRepository(IRegistryRepository):
             s3_key=entry.s3_key,
         )
 
-    def get_entry(self, key: str) -> SourceEntry | None:
+    def get_entry(self, key: str) -> RegistryEntry | None:
         """Get entry by key."""
         registry_entry = self.registry_manager.get_entry(key)
         if registry_entry:
-            return self._to_domain_entry(registry_entry)
+            return self._to_domain_entry(registry_entry, key)
         return None
 
-    def set_entry(self, key: str, entry: SourceEntry) -> None:
+    def set_entry(self, key: str, entry: RegistryEntry) -> None:
         """Set entry by key."""
         registry_entry = self._to_registry_entry(entry)
         self.registry_manager.set_entry(key, registry_entry)
@@ -65,3 +66,8 @@ class RegistryRepository(IRegistryRepository):
     def list_keys(self) -> list[str]:
         """List all keys in registry."""
         return self.registry_manager.list_keys()
+
+    def get_all_entries(self) -> dict[str, RegistryEntry]:
+        """Get all entries as dictionary."""
+        keys = self.list_keys()
+        return {key: self.get_entry(key) for key in keys if self.get_entry(key)}

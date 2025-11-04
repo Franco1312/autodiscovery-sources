@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from autodiscovery.domain.entities import SourceEntry
+from autodiscovery.domain.entities import RegistryEntry
 from autodiscovery.infrastructure.registry_repository import RegistryRepository
 from autodiscovery.registry.registry import RegistryManager
 
@@ -14,7 +14,8 @@ def test_registry_repository_get_entry():
         registry_path = Path(tmpdir) / "registry.json"
         manager = RegistryManager(registry_path)
 
-        entry = SourceEntry(
+        entry = RegistryEntry(
+            key="test_key",
             url="https://example.com/file.xls",
             version="v2025-11-04",
             mime="application/vnd.ms-excel",
@@ -51,7 +52,8 @@ def test_registry_repository_set_entry():
         manager = RegistryManager(registry_path)
         repository = RegistryRepository(manager)
 
-        entry = SourceEntry(
+        entry = RegistryEntry(
+            key="test_key",
             url="https://example.com/file.xls",
             version="v2025-11-04",
             mime="application/vnd.ms-excel",
@@ -72,7 +74,8 @@ def test_registry_repository_has_entry():
         manager = RegistryManager(registry_path)
         repository = RegistryRepository(manager)
 
-        entry = SourceEntry(
+        entry = RegistryEntry(
+            key="test_key",
             url="https://example.com/file.xls",
             version="v2025-11-04",
             mime="application/vnd.ms-excel",
@@ -92,14 +95,16 @@ def test_registry_repository_list_keys():
         manager = RegistryManager(registry_path)
         repository = RegistryRepository(manager)
 
-        entry1 = SourceEntry(
+        entry1 = RegistryEntry(
+            key="key1",
             url="https://example.com/file1.xls",
             version="v2025-11-04",
             mime="application/vnd.ms-excel",
             size_kb=100.0,
             sha256="abc123",
         )
-        entry2 = SourceEntry(
+        entry2 = RegistryEntry(
+            key="key2",
             url="https://example.com/file2.xls",
             version="v2025-11-04",
             mime="application/vnd.ms-excel",

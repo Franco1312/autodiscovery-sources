@@ -1,12 +1,12 @@
 """Service for loading and managing contracts."""
 
-from autodiscovery.domain.interfaces import IContractRepository
+from autodiscovery.domain.interfaces.contracts_port import IContractsPort
 
 
 class ContractService:
     """Service for managing source discovery contracts."""
 
-    def __init__(self, contract_repository: IContractRepository):
+    def __init__(self, contract_repository: IContractsPort):
         self.contract_repository = contract_repository
 
     def load_contracts(self) -> list[dict]:

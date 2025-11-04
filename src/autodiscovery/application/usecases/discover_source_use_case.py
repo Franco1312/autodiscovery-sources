@@ -6,14 +6,10 @@ from dataclasses import dataclass
 from autodiscovery.application.services.contract_service import ContractService
 from autodiscovery.application.services.discovery_service import DiscoveryService
 from autodiscovery.application.services.validation_service import ValidationService
-from autodiscovery.domain.entities import DiscoveredFile, SourceEntry
-from autodiscovery.domain.interfaces import (
-    IFileValidator,
-    IHTTPClient,
-    IMirrorService,
-    IRegistryRepository,
-    IValidationRules,
-)
+from autodiscovery.domain.entities import DiscoveredFile, RegistryEntry
+from autodiscovery.domain.interfaces.http_port import IHTTPPort
+from autodiscovery.domain.interfaces.mirror_port import IMirrorPort
+from autodiscovery.domain.interfaces.registry_port import IRegistryPort
 from autodiscovery.infrastructure.discoverer_factory import DiscovererFactory
 
 logger = logging.getLogger(__name__)
@@ -25,7 +21,7 @@ class DiscoverSourceResult:
 
     key: str
     discovered: DiscoveredFile
-    entry: SourceEntry
+    entry: RegistryEntry
     success: bool
     error: str | None = None
 
@@ -36,11 +32,11 @@ class DiscoverSourceUseCase:
     def __init__(
         self,
         contract_service: ContractService,
-        registry_repository: IRegistryRepository,
-        mirror_service: IMirrorService,
-        file_validator: IFileValidator,
-        http_client: IHTTPClient,
-        validation_rules: IValidationRules,
+        registry_repository: IRegistryPort,
+        mirror_service: IMirrorPort,
+        file_validator,  # FileValidator service (no port needed)
+        http_client: IHTTPPort,
+        validation_rules,  # ValidationRules service (no port needed)
     ):
         self.contract_service = contract_service
         self.registry_repository = registry_repository
@@ -132,7 +128,8 @@ class DiscoverSourceUseCase:
                 status = "broken"
 
         # Create entry
-        entry = SourceEntry(
+        entry = RegistryEntry(
+            key=key,
             url=discovered.url,
             version=discovered.version,
             mime=discovered.mime or "",
