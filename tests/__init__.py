@@ -1,1 +1,2 @@
-"""Tests for autodiscovery."""
+"""Tests for autodiscovery-sources."""
+

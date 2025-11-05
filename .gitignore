@@ -16,8 +16,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -36,22 +34,16 @@ ENV/
 *.swo
 *~
 
-# Testing
+# Project specific
+.env
+mirrors/
+registry/registry.json
+*.log
 .pytest_cache/
 .coverage
 htmlcov/
-.tox/
-.hypothesis/
-
-# Project specific
-.env
-.venv
-*.log
-discovered_*.json
-registry/
-mirrors/
-tmp/
 
 # OS
 .DS_Store
 Thumbs.db
+

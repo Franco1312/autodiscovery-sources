@@ -1,229 +1,112 @@
-# Source discovery contracts (resilient version)
-# Each item defines how to discover and validate a resource
+# Source contracts for autodiscovery-sources
+# Each item defines a source with discovery rules
 
 - key: "bcra_series"
   start_urls:
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
     - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp"
-  crawl:
-    follow_html: true
-    max_depth: 3
-    same_domain_only: true
-    avoid_domains:
-      - "facebook.com"
-      - "twitter.com"
-      - "x.com"
-      - "instagram.com"
-      - "linkedin.com"
-      - "youtube.com"
-      - "tiktok.com"
-      - "pinterest.com"
-      - "snapchat.com"
-      - "reddit.com"
-      - "whatsapp.com"
-      - "telegram.org"
-      - "t.me"
-    avoid_keywords:
-      - "normativa"
-      - "normativo"
+  scope:
+    allow_domains: ["bcra.gob.ar"]
+    allow_paths_any: ["/Pdfs/PublicacionesEstadisticas", "/PublicacionesEstadisticas"]
+    max_depth: 1
+    max_candidates: 10
+  find:
+    link_text_any: ["series", "variables", "xlsm"]
+    url_tokens_any: ["series", "PublicacionesEstadisticas"]
   match:
     kind: "regex_any"
     patterns:
-      - "(?i)series\\.xlsm$"
-      - "(?i)series[-_]?v\\d+\\.xlsm$"
-  expect:
-    mime_any:
-      - "application/vnd.ms-excel.sheet.macroEnabled.12"
-      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    min_size_kb: 100
-    max_age_days: 365  # Solo archivos del último año
+      - "(?i)series(.*)\\.xlsm$"
   select:
     prefer_ext: [".xlsm", ".xlsx", ".xls"]
     prefer_newest_by: "last_modified"
-  mirror: true
+  expect:
+    mime_any: ["application/vnd.ms-excel.sheet.macroEnabled.12", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+    min_size_kb: 100
   versioning: "date_today"
-  notes: "Hoja larga con series históricas."
+  mirror: true
 
 - key: "bcra_infomodia_xls"
-  start_urls:
-    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
-  crawl:
-    follow_html: true
-    max_depth: 3
-    same_domain_only: true
-    avoid_domains:
-      - "facebook.com"
-      - "twitter.com"
-      - "x.com"
-      - "instagram.com"
-      - "linkedin.com"
-      - "youtube.com"
-      - "tiktok.com"
-      - "pinterest.com"
-      - "snapchat.com"
-      - "reddit.com"
-      - "whatsapp.com"
-      - "telegram.org"
-      - "t.me"
-    avoid_keywords:
-      - "normativa"
-      - "normativo"
+  start_urls: ["https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"]
+  scope:
+    allow_domains: ["bcra.gob.ar"]
+    allow_paths_any: ["/Pdfs/PublicacionesEstadisticas", "/PublicacionesEstadisticas"]
+    max_depth: 1
+    max_candidates: 2
+  find:
+    link_text_any: ["infomondia", "informe monetario", "xls"]
+    url_tokens_any: ["infomondia", "infomodia"]
   match:
     kind: "regex_any"
     patterns:
       - "(?i)infomodia-(\\d{4}-\\d{2}-\\d{2})\\.xls$"
       - "(?i)informe[_-]?monetario[_-]?diario-(\\d{4}-\\d{2}-\\d{2})\\.xls$"
       - "(?i)infomondia\\.xls$"
+  select:
+    prefer_ext: [".xls", ".xlsx"]
+    prefer_newest_by: "date_from_filename_or_last_modified"
   expect:
-    mime_any:
-      - "application/vnd.ms-excel"
-      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    mime_any: ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
     min_size_kb: 60
-    max_age_days: 365  # Solo archivos del último año
-  select:
-    prefer_ext: [".xls", ".xlsx", ".xlsm", ".csv", ".pdf"]  # Excel/CSV primero, PDF último recurso
-    prefer_newest_by: "date_from_filename_or_last_modified"
-  mirror: true
   versioning: "date_from_filename_or_last_modified"
-  notes: "Si no hay fecha en filename, usar Last-Modified."
-
-- key: "bcra_infomodia_pdf"
-  start_urls:
-    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
-  crawl:
-    follow_html: true
-    max_depth: 3
-    same_domain_only: true
-    avoid_domains:
-      - "facebook.com"
-      - "twitter.com"
-      - "x.com"
-      - "instagram.com"
-      - "linkedin.com"
-      - "youtube.com"
-      - "tiktok.com"
-      - "pinterest.com"
-      - "snapchat.com"
-      - "reddit.com"
-      - "whatsapp.com"
-      - "telegram.org"
-      - "t.me"
-    avoid_keywords:
-      - "normativa"
-      - "normativo"
-  match:
-    kind: "regex_any"
-    patterns:
-      - "(?i)infomodia[-_]?\\d{4}-\\d{2}-\\d{2}\\.pdf$"
-      - "(?i)infomondiae\\.pdf$"
-      - "(?i)Informe\\s+Monetario\\s+Diario\\.pdf$"
-  expect:
-    mime_any:
-      - "application/vnd.ms-excel"
-      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      - "application/vnd.ms-excel.sheet.macroEnabled.12"
-      - "text/csv"
-      - "application/pdf"  # PDF como último recurso
-    min_size_kb: 200
-    max_age_days: 365  # Solo archivos del último año
-  select:
-    prefer_ext: [".xls", ".xlsx", ".xlsm", ".csv", ".pdf"]  # Excel/CSV primero, PDF último recurso
-    prefer_newest_by: "date_from_filename_or_last_modified"
   mirror: true
-  versioning: "date_from_filename_or_last_modified"
-  notes: "Documento de respaldo."
 
 - key: "bcra_rem_pdf"
-  start_urls:
-    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
-  crawl:
-    follow_html: true
-    max_depth: 3
-    same_domain_only: true
-    avoid_domains:
-      - "facebook.com"
-      - "twitter.com"
-      - "x.com"
-      - "instagram.com"
-      - "linkedin.com"
-      - "youtube.com"
-      - "tiktok.com"
-      - "pinterest.com"
-      - "snapchat.com"
-      - "reddit.com"
-      - "whatsapp.com"
-      - "telegram.org"
-      - "t.me"
-    avoid_keywords:
-      - "normativa"
-      - "normativo"
+  start_urls: ["https://www.bcra.gob.ar/PublicacionesEstadisticas/Relevamiento_Expectativas_de_Mercado.asp"]
+  scope:
+    allow_domains: ["bcra.gob.ar"]
+    max_depth: 2
+    max_candidates: 1
+  find:
+    link_text_any: ["REM", "Resultados", "pdf"]
+    url_tokens_any: ["REM", "PublicacionesEstadisticas"]
   match:
     kind: "regex_any"
     patterns:
-      - "(?i)relevamiento[-_ ]expectativas[-_ ]mercado[-_ ](\\w+)[-_ ](\\d{4})\\.pdf$"
       - "(?i)REM\\d{6,8}.*Resultados.*\\.pdf$"
-      - "(?i)REM.*Resultados\\s*web\\.pdf$"
-  expect:
-    mime_any: ["application/pdf"]
-    min_size_kb: 200
-    max_age_days: 365  # Solo archivos del último año
+      - "(?i)relevamiento.*mercado.*(\\w+)[-_ ](\\d{4})\\.pdf$"
   select:
     prefer_ext: [".pdf"]
     prefer_newest_by: "best_effort_date_or_last_modified"
-    locale_hint: "es"
-  mirror: true
+  expect:
+    mime_any: ["application/pdf"]
+    min_size_kb: 200
   versioning: "best_effort_date_or_last_modified"
-  notes: "PDF mensual del REM."
+  mirror: true
 
 - key: "bcra_rem_xlsx"
-  start_urls:
-    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/REM.asp"
-  crawl:
-    follow_html: true
-    max_depth: 3
-    same_domain_only: true
-    avoid_domains:
-      - "facebook.com"
-      - "twitter.com"
-      - "x.com"
-      - "instagram.com"
-      - "linkedin.com"
-      - "youtube.com"
-      - "tiktok.com"
-      - "pinterest.com"
-      - "snapchat.com"
-      - "reddit.com"
-      - "whatsapp.com"
-      - "telegram.org"
-      - "t.me"
-    avoid_keywords:
-      - "normativa"
-      - "normativo"
+  start_urls: ["https://www.bcra.gob.ar/PublicacionesEstadisticas/Relevamiento_Expectativas_de_Mercado.asp"]
+  scope:
+    allow_domains: ["bcra.gob.ar"]
+    max_depth: 2
+    max_candidates: 5
+  find:
+    link_text_any: ["REM", "Ranking", "Resultados", "Tablas", "xlsx", "históricos", "historico"]
+    url_tokens_any: ["ranking", "tablas", "relevamiento", "expectativas", "historico"]
   match:
     kind: "regex_any"
     patterns:
-      - "(?i)REM\\d{6,8}.*Tablas.*\\.xlsx$"
-      - "(?i)Tablas\\s*web\\.xlsx$"
-      - "(?i)Base\\s*de\\s*Resultados.*\\.xlsx$"
-  expect:
-    mime_any:
-      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      - "application/vnd.ms-excel"
-    min_size_kb: 120
+      - "(?i)ranking.*relevamiento.*expectativas.*\\.xlsx$"
+      - "(?i)tablas.*relevamiento.*expectativas.*\\.xlsx$"
+      - "(?i)historico.*relevamiento.*expectativas.*\\.xlsx$"
+      - "(?i)REM.*Tablas.*\\.xlsx$"
   select:
-    prefer_ext: [".xlsx", ".xls", ".xlsm", ".csv", ".pdf"]  # Excel/CSV primero, PDF último recurso
+    prefer_ext: [".xlsx", ".xls"]
     prefer_newest_by: "best_effort_date_or_last_modified"
-  mirror: true
+  expect:
+    mime_any: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"]
+    min_size_kb: 80
   versioning: "best_effort_date_or_last_modified"
-  notes: "Tablas del REM; relacionar con bcra_rem_pdf."
+  mirror: true
 
-# EMAE: API robusta (no HTML)
+# API-first → no crawl
 - key: "indec_emae_api"
   source_type: "api"
   endpoint: "https://apis.datos.gob.ar/series/api/series?ids=173.1_EMAE_2016_M_19"
   headers:
     Accept-Language: "es-AR"
     User-Agent: "RadarAutodiscovery/1.0"
-  mirror: false
   versioning: "none"
-  notes: "Evita scraping; usar ingestor para consumir."
+  mirror: false
+
+

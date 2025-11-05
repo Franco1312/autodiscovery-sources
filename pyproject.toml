@@ -1,20 +1,20 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "autodiscovery"
+name = "autodiscovery-sources"
 version = "0.1.0"
-description = "Data source URL discovery, validation, versioning and registration for Argentina (BCRA, INDEC, REM)"
+description = "Config-first public sources discovery and versioning engine"
 readme = "README.md"
 requires-python = ">=3.11"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
-    {name = "Radar Data Platform", email = "platform@example.com"}
+    {name = "Autodiscovery Team"}
 ]
-keywords = ["data-discovery", "bcra", "indec", "argentina", "data-sources"]
+keywords = ["discovery", "versioning", "crawler", "data-sources"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -26,100 +26,38 @@ dependencies = [
     "tenacity>=8.2.0",
     "beautifulsoup4>=4.12.0",
     "lxml>=4.9.0",
-    "pydantic>=2.0.0",
-    "python-dotenv>=1.0.0",
     "pyyaml>=6.0",
-    "boto3>=1.28.0",
-    "rich>=13.0.0",
-    "python-dateutil>=2.8.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "structlog>=23.2.0",
+    "boto3>=1.34.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
-    "ruff>=0.1.0",
-    "mypy>=1.5.0",
-    "pre-commit>=3.0.0",
-    "types-PyYAML>=6.0.0",
-    "types-beautifulsoup4>=4.12.0",
+    "black>=23.11.0",
+    "ruff>=0.1.6",
 ]
 
 [project.scripts]
-autodiscovery = "autodiscovery.cli:main"
+ads = "autodiscovery_sources.cli.app:app"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = [
-    "autodiscovery",
-    "autodiscovery.application",
-    "autodiscovery.application.factories",
-    "autodiscovery.application.services",
-    "autodiscovery.application.usecases",
-    "autodiscovery.domain",
-    "autodiscovery.infrastructure",
-    "autodiscovery.mirror",
-    "autodiscovery.registry",
-    "autodiscovery.rules",
-    "autodiscovery.sources",
-    "autodiscovery.util",
-]
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[tool.setuptools.package-data]
-autodiscovery = ["py.typed"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
+[tool.black]
+line-length = 100
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    ".pytest_cache",
-    "build",
-    "dist",
-]
 
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "ARG", # flake8-unused-arguments
-    "SIM", # flake8-simplify
-    "TCH", # flake8-type-checking
-    "PIE", # flake8-pie
-    "PT",  # flake8-pytest-style
-]
-ignore = [
-    "E501",  # line too long (handled by line-length)
-    "B008",  # do not perform function calls in argument defaults
-    "ARG001", # unused function argument
-    "ARG002", # unused method argument
-    "ARG003", # unused class method argument
-    "ARG004", # unused static method argument
-    "ARG005", # unused method argument (self)
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["autodiscovery"]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 10
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"

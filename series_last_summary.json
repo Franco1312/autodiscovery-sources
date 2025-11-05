@@ -1,0 +1,242 @@
+[
+  {
+    "series_id": "168.1_T_CAMBI500_D_0_0_17",
+    "description": "Tipo de Cambio A3500",
+    "last_date": "2002-06-12",
+    "last_value": 3.445
+  },
+  {
+    "series_id": "92.1_RID_0_0_32",
+    "description": "Reservas internacionales del BCRA, en millones de dólares",
+    "last_date": "2011-04-01",
+    "last_value": 51637.3
+  },
+  {
+    "series_id": "300.1_AP_PAS_BASRIA_0_M_21",
+    "description": "Apertura pasivo. Base monetaria",
+    "last_date": "2006-04-01",
+    "last_value": 60534911.0
+  },
+  {
+    "series_id": "331.2_PASES_REDELIQ_D_MONE_0_24_19",
+    "description": "Pases y Redescuentos: Leliq",
+    "last_date": "2003-04-11",
+    "last_value": 0.0
+  },
+  {
+    "series_id": "331.1_PASES_REDELIQ_M_MONE_0_24_24",
+    "description": "Pases y Redescuentos: Leliq",
+    "last_date": "2011-04-01",
+    "last_value": 0.0
+  },
+  {
+    "series_id": "89.2_TS_INTELAR_0_D_20",
+    "description": "Tasas de interés publicadas por el BCRA. Badlar.",
+    "last_date": "2003-04-11",
+    "last_value": 18.9375
+  },
+  {
+    "series_id": "11.3_AGCS_2004_M_41",
+    "description": "EMAE. Comercio mayorista y minorista y reparaciones",
+    "last_date": "2012-04-01",
+    "last_value": 150.70399797872568
+  },
+  {
+    "series_id": "12.3_E_2004_M_3",
+    "description": "Estimados Mensual Industrial. Índice (Base 2004)",
+    "last_date": "2002-04-01",
+    "last_value": 64.21
+  },
+  {
+    "series_id": "13.2_ED_2012_T_12",
+    "description": "Estimados Mensual Industrial desestacionalizado. Índice (Base 2012)",
+    "last_date": "2015-07-01",
+    "last_value": 99.2230726444357
+  },
+  {
+    "series_id": "183.1_BIENES_COBNES_0_M_27",
+    "description": "Bienes Cobros de exportaciones",
+    "last_date": "2011-04-01",
+    "last_value": 3909.032991
+  },
+  {
+    "series_id": "166.2_I_BIENEERV_0_0_16",
+    "description": "Importaciones de bienes y servicios",
+    "last_date": "2024-10-01",
+    "last_value": 88221912.00818525
+  },
+  {
+    "series_id": "447.1_TOTALTAL_0_0_5_37",
+    "description": "Índice de salarios total",
+    "last_date": "2017-02-08",
+    "last_value": 104.77243793240478
+  },
+  {
+    "series_id": "25.1_OGP_2004_A_17",
+    "description": "Índice de precios implícitos de oferta global PIB",
+    "last_date": "2024-01-01",
+    "last_value": 82457.92978531393
+  },
+  {
+    "series_id": "380.2_ICC_NACIONNAL_0_T_12",
+    "description": "ICC Nacional",
+    "last_date": "2025-07-01",
+    "last_value": 42.043865333333336
+  },
+  {
+    "series_id": "83.1_ITI_2004_A_27",
+    "description": "Índice de los terminos del intercambio",
+    "last_date": "2023-01-01",
+    "last_value": 137.9
+  },
+  {
+    "series_id": "167.2_E_BS_SCIOS_2004_0_13",
+    "description": "Exportaciones de bienes y servicios. Trimestral",
+    "last_date": "2024-10-01",
+    "last_value": 101454927.27722912
+  },
+  {
+    "series_id": "167.1_SO_EXT_IOS_2004_0_18",
+    "description": "Saldo Externo de bienes y servicios. Anual",
+    "last_date": "2024-01-01",
+    "last_value": -15004937.560743034
+  },
+  {
+    "series_id": "32.2_ICP_2004_T_30",
+    "description": "Indicador sintético de la actividad de la construcción de obras petroleras",
+    "last_date": "2015-07-01",
+    "last_value": 141.7
+  },
+  {
+    "series_id": "309.1_PRODUCCIONNAL_0_M_30",
+    "description": "Producción industrial Original",
+    "last_date": "2010-04-01",
+    "last_value": 99.3
+  },
+  {
+    "series_id": "30.2_UPAB_2012_T_35",
+    "description": "Utilización de la capacidad instalada en la industria de Productos alimenticios y bebidas como porcentaje del total de la capacidad del sector",
+    "last_date": "2015-07-01",
+    "last_value": 72.35937276185527
+  },
+  {
+    "series_id": "29.3_UPT_2006_M_23",
+    "description": "Utilización de la capacidad instalada en la industria de Productos textiles como porcentaje del total de la capacidad del sector",
+    "last_date": "2010-04-01",
+    "last_value": 88.5
+  },
+  {
+    "series_id": "11.2_VMATC_2004_T_12",
+    "description": "EMAE. Construcción",
+    "last_date": "2025-04-01",
+    "last_value": 127.50665006738188
+  },
+  {
+    "series_id": "455.1_VENTAS_PRETES_0_M_25_98",
+    "description": "Ventas supermercados. Ventas a precios constantes",
+    "last_date": "2025-04-01",
+    "last_value": 22420.826988976278
+  },
+  {
+    "series_id": "456.1_VENTAS_PRETES_0_M_25_91",
+    "description": "Autoservicios mayoristas. Ventas a precios corrientes",
+    "last_date": "2025-04-01",
+    "last_value": 300109.2939461599
+  },
+  {
+    "series_id": "34.2_MTMAN_0_P_16",
+    "description": "Indicadores de evolución del sector agropecuario. Producción de mani en toneladas",
+    "last_date": "2024-01-01",
+    "last_value": 1810000.0
+  },
+  {
+    "series_id": "34.1_SGHSOR_0_P_25",
+    "description": "Indicadores de evolución del sector agropecuario. Superficie sembrada de sorgo granífero en hectáreas",
+    "last_date": "2025-01-01",
+    "last_value": 930000.0
+  },
+  {
+    "series_id": "40.3_PT_0_M_18",
+    "description": "Faena pecuaria, porcinos, Mensual en toneladas",
+    "last_date": "2014-04-01",
+    "last_value": 35714.0
+  },
+  {
+    "series_id": "40.3_AC_0_M_12",
+    "description": "Cantidad de aves procesadas, Anual",
+    "last_date": "1989-04-01",
+    "last_value": 11271.0
+  },
+  {
+    "series_id": "203.1_IBIF_0_0_4",
+    "description": "IBIF Total en millones de pesos de 1960",
+    "last_date": "1980-10-01",
+    "last_value": 4998.0
+  },
+  {
+    "series_id": "205.1_IEQ_NACMAQ_0_0_14",
+    "description": "IBI en Equipo Durable de Producción Nacional en millones de pesos de 1960. Maquinaria",
+    "last_date": "1980-10-01",
+    "last_value": 803.0
+  },
+  {
+    "series_id": "204.1_IEQ_IMPMAQ_0_0_14",
+    "description": "IBI en Equipo Durable de Producción Importado en millones de pesos de 1960. Maquinaria",
+    "last_date": "1980-10-01",
+    "last_value": 794.0
+  },
+  {
+    "series_id": "324.1_F_CONSTRUCAJO__30",
+    "description": "f construccion puestos trabajo",
+    "last_date": "2025-04-01",
+    "last_value": 1807.2216444225223
+  },
+  {
+    "series_id": "324.1_M_ENSENIANZAJO__27",
+    "description": "m enseñanza puestos trabajo",
+    "last_date": "2025-04-01",
+    "last_value": 2305.1203539920207
+  },
+  {
+    "series_id": "307.1_GENERACIONICA_0_A_51",
+    "description": "Valor agregado bruto a precios básicos del sector generacion captacion y distribucion de energía eléctrica",
+    "last_date": "2024-01-01",
+    "last_value": 8710.774963251544
+  },
+  {
+    "series_id": "305.2_ELEC_GAS_ATAL_0_19",
+    "description": "Electricidad, gas y agua. Total",
+    "last_date": "2025-04-01",
+    "last_value": 13377162.063466256
+  },
+  {
+    "series_id": "368.3_BIODISEL_PION__19",
+    "description": "Biodisel producción",
+    "last_date": "2016-04-01",
+    "last_value": 191408.0
+  },
+  {
+    "series_id": "368.3_BIOETANOL_ION__35",
+    "description": "Bioetanol en base a maíz producción",
+    "last_date": "2018-04-01",
+    "last_value": 50536.84
+  },
+  {
+    "series_id": "166.2_INAC_BRADO_0_0_29",
+    "description": "Ingreso nacional bruto a precios de mercado",
+    "last_date": "2024-10-01",
+    "last_value": 697466033.2798283
+  },
+  {
+    "series_id": "166.2_PT_ENDEETO_0_0_24",
+    "description": "Préstamo / Endeudamiento Neto",
+    "last_date": "2024-10-01",
+    "last_value": 4114524.6976901074
+  },
+  {
+    "series_id": "28.1_AANBR_0_A_28",
+    "description": "Ahorro nacional bruto real: Anual a precios constantes",
+    "last_date": "2006-01-01",
+    "last_value": 77125.00739694538
+  }
+]

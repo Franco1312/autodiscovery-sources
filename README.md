@@ -1,440 +1,276 @@
-# Autodiscovery
+# autodiscovery-sources
 
-**Autodiscovery** es una herramienta Python lista para producción que descubre, valida, versiona y registra URLs de fuentes de datos oficiales de Argentina (BCRA, INDEC, REM) con resiliencia y confiabilidad.
+Config-first public sources discovery and versioning engine. Discovers and versions public sources (XLS/XLSX/XLSM/PDF/API) from YAML contracts using a generic engine (no site-specific logic).
 
-## ¿Cómo funciona?
+## Features
 
-### Arquitectura
+- **Config-first**: All discovery rules defined in YAML contracts
+- **Generic engine**: No hardcoded logic per site
+- **Clean Architecture**: Separation of concerns with domain, use cases, interfaces, and infrastructure
+- **Resilient**: Retries, fallbacks (HEAD→GET), and atomic registry writes
+- **Versioning**: Multiple strategies for extracting versions from filenames and headers
+- **Mirroring**: Filesystem and S3 (optional) mirroring with atomic operations
+- **Registry**: JSON-based registry with atomic writes for tracking discovered sources
 
-El sistema funciona en tres capas principales:
+## Installation
 
-1. **Discovery Layer**: Descubre URLs de fuentes de datos escaneando páginas web oficiales
-2. **Validation Layer**: Valida los recursos descubiertos (MIME type, tamaño, integridad)
-3. **Registry Layer**: Mantiene un registro versionado de todas las fuentes descubiertas
+```bash
+# Create virtual environment
+make venv
+source venv/bin/activate
 
-### Flujo de trabajo
-
-```
-┌─────────────────┐
-│  Contracts YAML │  Define cómo descubrir cada fuente
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   Discoverer    │  Escanea páginas web y encuentra URLs
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   Validator     │  Verifica MIME type, tamaño, etc.
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Mirror       │  Descarga y guarda localmente (FS/S3)
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   Registry      │  Guarda metadatos en JSON atómico
-└─────────────────┘
+# Install package
+make install
 ```
 
-### Componentes principales
+Or manually:
 
-#### 1. Contracts (`contracts/sources.yml`)
+```bash
+python3.11 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip setuptools wheel
+pip install -e ".[dev]"
+```
 
-Los contratos definen **cómo** descubrir cada fuente de datos:
+## Configuration
+
+Copy `.env.example` to `.env` (optional, no critical values required):
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` if you want to configure:
+- S3 credentials (optional, for S3 mirroring)
+- Logging level
+- HTTP timeouts
+
+## Usage
+
+### List available sources
+
+```bash
+ads list
+```
+
+### Discover a single source
+
+```bash
+ads discover --key bcra_series
+```
+
+### Discover with fast mode (reduced depth and candidates)
+
+```bash
+ads discover --key bcra_series --fast
+```
+
+### Sync all sources
+
+```bash
+ads sync --all
+```
+
+### Sync specific sources
+
+```bash
+ads sync --all --only-keys bcra_series,bcra_infomodia_xls
+```
+
+### Sync with fast mode
+
+```bash
+ads sync --all --fast
+```
+
+### Show registry entries
+
+```bash
+# Show all entries
+ads show
+
+# Show specific key
+ads show bcra_series
+```
+
+### Validate a source
+
+Re-validate a source by redoing HEAD/GET and updating status:
+
+```bash
+ads validate --key bcra_series
+```
+
+## Project Structure
+
+```
+autodiscovery-sources/
+├── contracts/
+│   └── sources.yml          # Source contracts (YAML)
+├── mirrors/                 # Mirrored files (key/version/filename)
+├── registry/
+│   └── registry.json        # Registry state (atomic writes)
+├── src/
+│   ├── domain/             # Domain entities, value objects, policies
+│   ├── usecases/           # Use cases (discover, sync, show)
+│   ├── interfaces/         # Ports (contracts, HTTP, HTML, registry, mirror, etc.)
+│   ├── infrastructure/     # Adapters (YAML, httpx, bs4, FS, S3, etc.)
+│   ├── engine/             # Generic engine (crawler, ranker, validator, selector, versioning)
+│   └── cli/                # CLI commands (Typer)
+└── tests/                  # Test suite
+```
+
+## Contracts (sources.yml)
+
+Each source is defined with:
+
+- **key**: Unique identifier
+- **start_urls**: Starting URLs for crawling
+- **scope**: Domain/path restrictions, max depth, max candidates
+- **find**: Prefilter criteria (link text, URL tokens)
+- **match**: Regex patterns for matching files
+- **select**: Selection preferences (extension, newest by method)
+- **expect**: Validation criteria (MIME types, minimum size)
+- **versioning**: Version extraction strategy
+- **mirror**: Whether to mirror the file
+
+### Example Contract
 
 ```yaml
 - key: "bcra_series"
   start_urls:
-    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/..."
+    - "https://www.bcra.gob.ar/PublicacionesEstadisticas/Informe_monetario_diario.asp"
+  scope:
+    allow_domains: ["bcra.gob.ar"]
+    allow_paths_any: ["/PublicacionesEstadisticas"]
+    max_depth: 1
+    max_candidates: 2
+  find:
+    link_text_any: ["series", "xlsm"]
+    url_tokens_any: ["series", "PublicacionesEstadisticas"]
   match:
-    kind: "fixed_filename"
-    pattern: "series.xlsm"
+    kind: "regex_any"
+    patterns:
+      - "(?i)series(.*)\\.xlsm$"
+  select:
+    prefer_ext: [".xlsm", ".xlsx", ".xls"]
+    prefer_newest_by: "last_modified"
   expect:
-    mime: "application/vnd.ms-excel.sheet.macroEnabled.12"
+    mime_any: ["application/vnd.ms-excel.sheet.macroEnabled.12"]
     min_size_kb: 100
-  mirror: true
   versioning: "date_today"
+  mirror: true
 ```
 
-**Tipos de matching:**
-- `fixed_filename`: Busca un nombre de archivo exacto
-- `date_pattern`: Busca archivos con patrón de fecha (regex)
-- `month_pattern`: Busca archivos con patrón de mes/año
-- `fuzzy_text_and_ext`: Busca por texto y extensión de archivo
+### API Sources
 
-**Tipos de versioning:**
-- `date_today`: Versión por fecha de descubrimiento (`v2025-11-04`)
-- `date_from_filename`: Extrae fecha del nombre de archivo
-- `year_month_from_filename`: Extrae año-mes del nombre
+For API sources, use `source_type: "api"`:
 
-#### 2. Discoverers (`src/autodiscovery/sources/`)
-
-Cada discoverer implementa la lógica específica para encontrar una fuente:
-
-- **BCRASeriesDiscoverer**: Busca `series.xlsm` en páginas de BCRA
-- **BCRAInfomodiaDiscoverer**: Busca archivos `infomodia-YYYY-MM-DD.xls`
-- **BCRAREMDiscoverer**: Busca PDFs REM con meses en español
-- **INDECEMAEDiscoverer**: Busca archivos EMAE por texto fuzzy
-
-Todos heredan de `BaseDiscoverer` y deben implementar:
-```python
-def discover(self, start_urls: List[str]) -> Optional[DiscoveredFile]
+```yaml
+- key: "indec_emae_api"
+  source_type: "api"
+  endpoint: "https://apis.datos.gob.ar/series/api/series?ids=173.1_EMAE_2016_M_19"
+  headers:
+    Accept-Language: "es-AR"
+  versioning: "none"
+  mirror: false
 ```
 
-#### 3. HTTP Client (`src/autodiscovery/http.py`)
+## Versioning Strategies
 
-Cliente HTTP con:
-- **Retry logic**: Reintentos automáticos con backoff exponencial (tenacity)
-- **Timeouts**: Configurables por variable de entorno
-- **SSL verification**: Opcional (desactivar solo para pruebas)
+- **date_today**: Use today's date (for fixed-name files)
+- **date_from_filename_or_last_modified**: Try filename regex, fallback to Last-Modified
+- **best_effort_date_or_last_modified**: Multiple strategies with fallbacks
+- **none**: No versioning (for APIs)
 
-#### 4. Registry (`src/autodiscovery/registry/`)
+## Output Locations
 
-Sistema de registro atómico en JSON:
+- **Mirrors**: `mirrors/<key>/<version>/<filename>`
+- **Registry**: `registry/registry.json` (atomic writes)
 
-```json
-{
-  "entries": {
-    "bcra_series": {
-      "url": "https://www.bcra.gob.ar/.../series.xlsm",
-      "version": "v2025-11-04",
-      "mime": "application/vnd.ms-excel.sheet.macroEnabled.12",
-      "size_kb": 7327.72,
-      "sha256": "acdd62bd...",
-      "last_checked": "2025-11-04T13:45:27Z",
-      "status": "ok",
-      "notes": "LELIQ TNA = s/o desde 2024-07-19",
-      "stored_path": "mirrors/bcra_series/v2025-11-04/series.xlsm",
-      "s3_key": null
-    }
-  }
-}
-```
+## SLO (Service Level Objectives)
 
-**Escritura atómica**: Usa archivo temporal + rename para evitar corrupción.
+- **Freshness BCRA**: < 36h
+- **REM detection**: Within 72h of publication
 
-#### 5. Mirrors (`src/autodiscovery/mirror/`)
+## Runbooks
 
-Sistema de espejo dual:
+### "No candidates found"
 
-- **Filesystem Mirror**: Guarda en `mirrors/<key>/<version>/<filename>`
-- **S3 Mirror** (opcional): Sube a S3 si hay credenciales configuradas
+- Check `find.link_text_any` and `find.url_tokens_any` - adjust if too restrictive
+- Verify `start_urls` are accessible
+- Check `scope.allow_domains` and `scope.allow_paths_any`
 
-Ambos calculan SHA256 durante la descarga para integridad.
+### "MIME mismatch"
 
-#### 6. Validation Rules (`src/autodiscovery/rules/`)
+- Relax `expect.mime_any` or accept by filename extension
+- Check if server returns incorrect Content-Type
 
-- **validation.py**: Define MIME types esperados y tamaños mínimos por fuente
-- **discontinuities.py**: Documenta discontinuidades conocidas (agregadas como `notes`)
+### "Filename without date"
 
-## Instalación
+- Use `versioning: "last_modified"` or `"best_effort_date_or_last_modified"`
+- Adjust regex patterns in `match.patterns`
+
+### "HEAD failed, GET OK"
+
+- This is expected for some servers - the validator handles this automatically
+- Entry will have `notes: "head_failed_get_ok"`
+
+## Testing
 
 ```bash
-# Instalar en modo desarrollo
-cd autodiscovery
-pip install -e .
-
-# O con dependencias de desarrollo
-pip install -e ".[dev]"
+make test
 ```
 
-## Configuración
-
-Copia `.env.example` a `.env` y configura:
+Or manually:
 
 ```bash
-# Registry
-REGISTRY_PATH=registry/sources_registry.json
-MIRRORS_PATH=mirrors
-
-# HTTP
-TIMEOUT_SECS=10
-RETRIES=3
-USER_AGENT=RadarAutodiscovery/1.0
-VERIFY_SSL=true  # false solo para pruebas
-
-# S3 (opcional)
-MIRRORS_S3_BUCKET=
-AWS_REGION=
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-
-# Contracts
-CONTRACTS_PATH=contracts/sources.yml
+pytest tests/ -v --cov=src --cov-report=term-missing
 ```
 
-## Uso
+## Development
 
-### CLI Commands
-
-#### Descubrir una fuente
+### Code Quality
 
 ```bash
-# Con SSL desactivado (solo pruebas)
-VERIFY_SSL=false autodiscovery discover bcra_series
+# Format with black
+black src/ tests/
 
-# Con JSON output
-VERIFY_SSL=false autodiscovery discover bcra_series --json
+# Lint with ruff
+ruff check src/ tests/
 ```
 
-**Qué hace:**
-1. Lee el contrato de `bcra_series` desde `contracts/sources.yml`
-2. Obtiene las URLs de inicio
-3. Ejecuta el discoverer correspondiente
-4. Encuentra el archivo `series.xlsm`
-5. Valida MIME type y tamaño
-6. Descarga y guarda en mirror (si está habilitado)
-7. Calcula SHA256
-8. Guarda entrada en registry
+### Makefile Targets
 
-#### Listar fuentes registradas
+- `make venv`: Create virtual environment
+- `make install`: Install package and dependencies
+- `make test`: Run tests
+- `make run-sync`: Run sync all sources (fast mode)
+- `make clean`: Clean build artifacts
 
-```bash
-autodiscovery list-keys
-autodiscovery list-keys --json
-```
+## Architecture
 
-#### Mostrar detalles de una fuente
+### Clean Architecture Layers
 
-```bash
-autodiscovery show bcra_series
-autodiscovery show bcra_series --json
-```
+1. **Domain**: Entities, value objects, policies, errors
+2. **Use Cases**: Business logic orchestration
+3. **Interfaces (Ports)**: Abstract interfaces for adapters
+4. **Infrastructure (Adapters)**: Concrete implementations (YAML, httpx, bs4, FS, S3)
+5. **Engine**: Generic discovery logic (crawler, ranker, validator, selector, versioning)
+6. **CLI**: Typer commands for user interaction
 
-#### Validar una entrada existente
+### Dependency Injection
 
-```bash
-VERIFY_SSL=false autodiscovery validate bcra_series
-```
+All adapters are injected via ports, allowing easy testing and swapping implementations.
 
-**Qué hace:**
-1. Lee la entrada del registry
-2. Hace HEAD request a la URL
-3. Verifica MIME type y tamaño actuales
-4. Actualiza `last_checked` y `status`
+## Future Extensions
 
-#### Sincronizar todas las fuentes
+- **Selenium/Playwright**: Interface prepared but not implemented (for JS-heavy sites)
+- **More versioning strategies**: Additional date extraction patterns
+- **Metrics dashboard**: Expose metrics via HTTP API
+- **Scheduled sync**: Cron-like scheduling for automatic discovery
 
-```bash
-# Sincronizar todas
-VERIFY_SSL=false autodiscovery sync --all
-
-# Sincronizar una específica
-VERIFY_SSL=false autodiscovery sync --key bcra_infomodia
-```
-
-## Integración con `ingestor-reader`
-
-### Usando el cliente Python
-
-```python
-from autodiscovery.client import AutodiscoveryClient
-
-client = AutodiscoveryClient()
-
-# Obtener URL más reciente
-url = client.get_latest_url("bcra_series")
-print(f"URL: {url}")
-
-# Obtener ruta del mirror local
-mirror_path = client.get_latest_mirror_path("bcra_series")
-print(f"Mirror: {mirror_path}")
-
-# Obtener entrada completa
-entry = client.get_entry("bcra_series")
-if entry:
-    print(f"Version: {entry.version}")
-    print(f"Status: {entry.status}")
-    print(f"SHA256: {entry.sha256}")
-```
-
-### Funciones de conveniencia
-
-```python
-from autodiscovery.client import get_latest_url, get_latest_mirror_path
-
-url = get_latest_url("bcra_series")
-mirror_path = get_latest_mirror_path("bcra_series")
-```
-
-### Leyendo el registry directamente
-
-```python
-import json
-from pathlib import Path
-
-registry_path = Path("registry/sources_registry.json")
-with open(registry_path) as f:
-    registry = json.load(f)
-
-entry = registry["entries"]["bcra_series"]
-url = entry["url"]
-version = entry["version"]
-```
-
-## Estructura del proyecto
-
-```
-autodiscovery/
-├── contracts/
-│   └── sources.yml          # Contratos de discovery
-├── src/autodiscovery/
-│   ├── cli.py                # CLI con Typer
-│   ├── config.py             # Configuración desde env
-│   ├── http.py               # Cliente HTTP con retries
-│   ├── html.py               # Utilidades de parsing HTML
-│   ├── hashutil.py           # SHA256 hashing
-│   ├── client.py             # API de integración
-│   ├── mirror/
-│   │   ├── fs.py             # Mirror en filesystem
-│   │   └── s3.py             # Mirror en S3 (opcional)
-│   ├── registry/
-│   │   ├── models.py         # Modelos Pydantic
-│   │   └── registry.py       # Manager de registry
-│   ├── rules/
-│   │   ├── validation.py     # Reglas de validación
-│   │   └── discontinuities.py # Discontinuidades conocidas
-│   ├── sources/
-│   │   ├── base.py           # Base discoverer
-│   │   ├── bcra_series.py    # Discoverer BCRA series
-│   │   ├── bcra_infomodia.py # Discoverer BCRA infomodia
-│   │   ├── bcra_rem.py       # Discoverer BCRA REM
-│   │   └── indec_emae.py     # Discoverer INDEC EMAE
-│   └── util/
-│       ├── date.py           # Utilidades de fecha/versión
-│       └── fsx.py            # Utilidades de filesystem
-├── tests/
-│   └── test_autodiscovery.py # Tests
-├── pyproject.toml            # Configuración del paquete
-├── README.md                  # Este archivo
-└── .env.example               # Ejemplo de configuración
-```
-
-## Flujo detallado de discovery
-
-1. **Carga del contrato**: Lee `contracts/sources.yml` y encuentra el contrato para la clave
-2. **Selección del discoverer**: Mapea la clave a la clase discoverer correspondiente
-3. **Fetch de HTML**: Hace GET request a las URLs de inicio
-4. **Parsing**: Usa BeautifulSoup para parsear HTML
-5. **Búsqueda de links**: Encuentra links que coinciden con el patrón
-6. **Selección**: Elige el archivo más reciente (si hay múltiples)
-7. **Validación HEAD**: Hace HEAD request para obtener MIME type y tamaño
-8. **Validación de reglas**: Verifica contra `rules/validation.py`
-9. **Descarga (mirror)**: Si está habilitado, descarga el archivo
-10. **Cálculo SHA256**: Calcula hash durante la descarga
-11. **Generación de versión**: Genera versión según política del contrato
-12. **Guardado en registry**: Escribe entrada en registry JSON (atómico)
-
-## Versionado
-
-El sistema versiona automáticamente según el tipo definido en el contrato:
-
-- **`date_today`**: `v2025-11-04` (fecha de descubrimiento)
-- **`date_from_filename`**: `v2025-11-04` (extraída del nombre)
-- **`year_month_from_filename`**: `2025-11` (año-mes)
-
-Los mirrors se guardan en `mirrors/<key>/<version>/<filename>`.
-
-## Resiliencia
-
-- **Retry logic**: Reintentos automáticos con backoff exponencial
-- **Timeouts**: Configurables para evitar bloqueos
-- **Atomic writes**: Escritura atómica del registry para evitar corrupción
-- **Error handling**: Manejo de errores en cada capa
-- **Status tracking**: Estado `ok`, `suspect`, o `broken` por entrada
-
-## Observabilidad
-
-- **Logging estructurado**: JSON logs en stdout
-- **Métricas**: Contadores en memoria por run
-- **JSON output**: Todos los comandos soportan `--json`
-
-## Limitaciones
-
-- **No parsea contenido**: No lee XLS/PDF, solo descubre URLs
-- **No valida contenido**: Solo valida MIME type y tamaño
-- **No detecta cambios**: Solo detecta cambios en URL, no en contenido
-
-## Tests
-
-```bash
-pytest tests/
-```
-
-Los tests incluyen:
-- Utilidades de fecha/versión
-- Registry atómico read/write
-- Matchers de discoverers
-- Serialización/deserialización de modelos
-
-## Ejemplos de uso
-
-### Descubrir y registrar BCRA series
-
-```bash
-VERIFY_SSL=false autodiscovery discover bcra_series --json
-```
-
-### Sincronizar todas las fuentes
-
-```bash
-VERIFY_SSL=false autodiscovery sync --all --json
-```
-
-### Validar una entrada existente
-
-```bash
-VERIFY_SSL=false autodiscovery validate bcra_series
-```
-
-### Leer desde Python
-
-```python
-from autodiscovery.client import get_latest_url
-
-# Obtener URL para ingestor-reader
-url = get_latest_url("bcra_series")
-# Usar url en ingestor-reader...
-```
-
-## Troubleshooting
-
-### Error SSL
-
-```bash
-# Desactivar SSL temporalmente (solo pruebas)
-VERIFY_SSL=false autodiscovery discover bcra_series
-```
-
-### Registry no encontrado
-
-El sistema crea automáticamente el registry si no existe.
-
-### Mirror falla
-
-Verifica permisos de escritura en `MIRRORS_PATH` o configura S3.
-
-### Discoverer no encuentra archivo
-
-1. Verifica que la URL de inicio sea correcta
-2. Verifica que el patrón de matching sea correcto
-3. Revisa los logs para ver qué links se encontraron
-
-## Contribuir
-
-Para agregar un nuevo discoverer:
-
-1. Crear clase en `src/autodiscovery/sources/<nombre>.py`
-2. Heredar de `BaseDiscoverer`
-3. Implementar método `discover()`
-4. Agregar mapping en `cli.py` (`DISCOVERERS`)
-5. Agregar contrato en `contracts/sources.yml`
-6. Agregar reglas de validación en `rules/validation.py`
-
-## Licencia
+## License
 
 MIT
+
